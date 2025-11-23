@@ -100,6 +100,27 @@ export const updateRecurring = mutation({
     },
 });
 
+// Mutation: Activer/Désactiver une dépense récurrente
+export const toggleRecurring = mutation({
+    args: {
+        id: v.id("recurrings"),
+        isActive: v.boolean(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Non authentifié");
+
+        const recurring = await ctx.db.get(args.id);
+        if (!recurring || recurring.userId !== identity.subject) {
+            throw new Error("Dépense récurrente non trouvée");
+        }
+
+        await ctx.db.patch(args.id, {
+            isActive: args.isActive,
+        });
+    },
+});
+
 // Mutation: Supprimer une dépense récurrente
 export const deleteRecurring = mutation({
     args: {

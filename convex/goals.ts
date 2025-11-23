@@ -45,8 +45,8 @@ export const createGoal = mutation({
     },
 });
 
-// Mutation: Mettre à jour la progression d'un objectif
-export const updateGoalProgress = mutation({
+// Mutation: Mettre à jour l'épargne d'un objectif
+export const updateSavedAmount = mutation({
     args: {
         id: v.id("goals"),
         savedAmount: v.number(),
@@ -62,6 +62,33 @@ export const updateGoalProgress = mutation({
 
         await ctx.db.patch(args.id, {
             savedAmount: args.savedAmount,
+        });
+    },
+});
+
+// Mutation: Mettre à jour un objectif complet
+export const updateGoal = mutation({
+    args: {
+        id: v.id("goals"),
+        name: v.string(),
+        targetAmount: v.number(),
+        savedAmount: v.number(),
+        deadline: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Non authentifié");
+
+        const goal = await ctx.db.get(args.id);
+        if (!goal || goal.userId !== identity.subject) {
+            throw new Error("Objectif non trouvé");
+        }
+
+        await ctx.db.patch(args.id, {
+            name: args.name,
+            targetAmount: args.targetAmount,
+            savedAmount: args.savedAmount,
+            deadline: args.deadline,
         });
     },
 });

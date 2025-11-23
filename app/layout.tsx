@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -22,11 +23,18 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="fr">
+      <html lang="fr" suppressHydrationWarning>
         <body className={`${inter.variable} font-sans antialiased`}>
           <ConvexClientProvider>
-            {children}
-            <Toaster />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
           </ConvexClientProvider>
         </body>
       </html>
