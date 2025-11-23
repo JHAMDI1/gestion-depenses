@@ -8,13 +8,27 @@
  * @module
  */
 
+import type * as budgets from "../budgets.js";
+import type * as categories from "../categories.js";
+import type * as goals from "../goals.js";
+import type * as http from "../http.js";
+import type * as recurrings from "../recurrings.js";
+import type * as transactions from "../transactions.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{}>;
+declare const fullApi: ApiFromModules<{
+  budgets: typeof budgets;
+  categories: typeof categories;
+  goals: typeof goals;
+  http: typeof http;
+  recurrings: typeof recurrings;
+  transactions: typeof transactions;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
