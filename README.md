@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Masrouf - Application de Gestion des Finances Personnelles
 
-## Getting Started
+Application web moderne de gestion des finances personnelles construite avec Next.js, Clerk et Convex.
 
-First, run the development server:
+## 🚀 Fonctionnalités
 
+- ✅ Authentification sécurisée avec Clerk
+- 💰 Suivi des transactions et dépenses
+- 📊 Statistiques et graphiques interactifs
+- 🎯 Gestion des budgets par catégorie
+- 💎 Objectifs d'épargne
+- 🔄 Dépenses récurrentes
+- 🌍 Support multilingue (Français / العربية)
+- 🌙 Mode sombre par défaut avec thème violet moderne
+- 📱 Design responsive
+
+## 🛠️ Stack Technique
+
+- **Framework**: Next.js 16 (App Router)
+- **Langage**: TypeScript
+- **Styling**: TailwindCSS v4
+- **Composants UI**: shadcn/ui
+- **Authentification**: Clerk
+- **Base de données**: Convex (temps réel)
+- **Graphiques**: Recharts
+- **i18n**: next-intl
+- **Déploiement**: Vercel
+
+## 📦 Installation
+
+1. Cloner le repository :
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd masrouf/web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Installer les dépendances :
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Configurer les variables d'environnement :
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Puis remplir les valeurs dans `.env.local` :
+- Créer un compte sur [Clerk](https://clerk.com) et copier les clés API
+- Créer un projet sur [Convex](https://convex.dev) et copier l'URL
 
-## Learn More
+4. Initialiser Convex :
+```bash
+npx convex dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Lancer le serveur de développement :
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. Ouvrir [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔑 Variables d'Environnement
 
-## Deploy on Vercel
+Voir `.env.example` pour la liste complète des variables requises.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Clerk (Authentification)
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Convex (Base de données)
+- `CONVEX_DEPLOYMENT`
+- `NEXT_PUBLIC_CONVEX_URL`
+
+## 📁 Structure du Projet
+
+```
+web/
+├── app/                    # Routes Next.js (App Router)
+│   ├── [locale]/          # Routes avec support i18n
+│   ├── (public)/          # Pages publiques
+│   ├── (protected)/       # Pages protégées (auth requise)
+│   └── layout.tsx         # Layout racine
+├── components/            # Composants React
+│   ├── ui/               # Composants shadcn/ui
+│   ├── layout/           # Layout components
+│   ├── dashboard/        # Composants du dashboard
+│   └── ...
+├── convex/               # Schémas et fonctions Convex
+│   ├── schema.ts        # Définitions des tables
+│   ├── categories.ts    # Queries/mutations catégories
+│   ├── transactions.ts  # Queries/mutations transactions
+│   └── ...
+├── lib/                  # Utilitaires et helpers
+├── messages/             # Fichiers de traduction i18n
+│   ├── fr.json
+│   └── ar.json
+└── public/               # Assets statiques
+```
+
+## 🎨 Design System
+
+- **Thème**: Violet moderne (#7c3aed)
+- **Mode**: Sombre par défaut
+- **Police**: Inter (Google Fonts)
+- **Devise**: TND (Dinar Tunisien)
+- **Langues**: Français + العربية (avec support RTL)
+
+## 🚀 Déploiement
+
+L'application est configurée pour être déployée sur Vercel :
+
+1. Connecter le repository GitHub à Vercel
+2. Configurer les variables d'environnement dans Vercel
+3. Déployer automatiquement sur chaque push vers `main`
+
+## 📝 Scripts Disponibles
+
+```bash
+npm run dev      # Serveur de développement
+npm run build    # Build de production
+npm run start    # Serveur de production
+npm run lint     # Linter ESLint
+```
+
+## 🤝 Contribution
+
+Ce projet est en cours de développement actif.
+
+## 📄 Licence
+
+Privé
+
+## 👨‍💻 Auteur
+
+Développé avec ❤️ pour une gestion financière simplifiée
