@@ -18,8 +18,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Trash2, Edit } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function CategoryManager() {
+    const t = useTranslations("settings");
+    const tCommon = useTranslations("common");
     const categories = useQuery(api.categories.getCategories);
     const createCategory = useMutation(api.categories.createCategory);
     const deleteCategory = useMutation(api.categories.deleteCategory);
@@ -34,7 +37,7 @@ export function CategoryManager() {
         e.preventDefault();
 
         if (!name) {
-            toast.error("Le nom est requis");
+            toast.error(tCommon("error"));
             return;
         }
 
@@ -46,25 +49,25 @@ export function CategoryManager() {
                 icon,
                 color,
             });
-            toast.success("Catégorie créée !");
+            toast.success(tCommon("success"));
             setName("");
             setIcon("📦");
             setColor("#7c3aed");
             setIsDialogOpen(false);
         } catch (error) {
-            toast.error("Erreur lors de la création");
+            toast.error(tCommon("error"));
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleDelete = async (id: Id<"categories">) => {
-        if (confirm("Supprimer cette catégorie ? Attention, cela pourrait affecter les transactions liées.")) {
+        if (confirm(tCommon("confirmDelete"))) {
             try {
                 await deleteCategory({ id });
-                toast.success("Catégorie supprimée");
+                toast.success(tCommon("delete") + " " + tCommon("success"));
             } catch (error) {
-                toast.error("Erreur lors de la suppression");
+                toast.error(tCommon("error"));
             }
         }
     };
@@ -72,25 +75,25 @@ export function CategoryManager() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Mes Catégories</h3>
+                <h3 className="text-lg font-medium">{t("myCategories")}</h3>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                         <Button size="sm">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Nouvelle Catégorie
+                            <Plus className="me-2 h-4 w-4" />
+                            {t("newCategory")}
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <form onSubmit={handleSubmit}>
                             <DialogHeader>
-                                <DialogTitle>Ajouter une catégorie</DialogTitle>
+                                <DialogTitle>{t("addCategory")}</DialogTitle>
                                 <DialogDescription>
-                                    Créez une nouvelle catégorie pour classer vos dépenses.
+                                    {t("addCategoryDesc")}
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">Nom</Label>
+                                    <Label htmlFor="name">{t("name")}</Label>
                                     <Input
                                         id="name"
                                         value={name}
@@ -100,7 +103,7 @@ export function CategoryManager() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="icon">Icône (Emoji)</Label>
+                                        <Label htmlFor="icon">{t("icon")}</Label>
                                         <Input
                                             id="icon"
                                             value={icon}
@@ -109,7 +112,7 @@ export function CategoryManager() {
                                         />
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="color">Couleur</Label>
+                                        <Label htmlFor="color">{t("color")}</Label>
                                         <Input
                                             id="color"
                                             type="color"
@@ -122,7 +125,7 @@ export function CategoryManager() {
                             </div>
                             <DialogFooter>
                                 <Button type="submit" disabled={isSubmitting}>
-                                    Créer
+                                    {tCommon("create")}
                                 </Button>
                             </DialogFooter>
                         </form>

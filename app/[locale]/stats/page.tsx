@@ -26,10 +26,17 @@ import {
     CartesianGrid,
 } from "recharts";
 import { startOfMonth, subMonths, format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, ar } from "date-fns/locale";
 import { Loader2, TrendingUp, PieChart as PieChartIcon } from "lucide-react";
+import { ExportCSV } from "@/components/stats/ExportCSV";
+import { TopCategoriesTable } from "@/components/stats/TopCategoriesTable";
+import { useTranslations, useFormatter, useLocale } from "next-intl";
 
 export default function StatsPage() {
+    const t = useTranslations("stats");
+    const formatFormatter = useFormatter();
+    const locale = useLocale();
+
     const [timeRange, setTimeRange] = useState("6"); // 6 derniers mois par défaut
 
     // Récupérer toutes les transactions pour les calculs
@@ -63,7 +70,7 @@ export default function StatsPage() {
     const lastXMonths = Array.from({ length: parseInt(timeRange) }).map((_, i) => {
         const date = subMonths(new Date(), i);
         const monthKey = format(date, "yyyy-MM");
-        const monthLabel = format(date, "MMM", { locale: fr });
+        const monthLabel = format(date, "MMM", { locale: locale === 'ar' ? ar : fr });
 
         const amount = transactions
             .filter((t) => format(new Date(t.date), "yyyy-MM") === monthKey)
@@ -76,14 +83,6 @@ export default function StatsPage() {
         };
     }).reverse();
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("fr-TN", {
-            style: "currency",
-            currency: "TND",
-            minimumFractionDigits: 3,
-        }).format(amount);
-    };
-
     const totalExpenses = transactions.reduce((sum, t) => sum + t.amount, 0);
     const averageMonthly = totalExpenses / (parseInt(timeRange) || 1); // Approximation simple
 
@@ -93,21 +92,24 @@ export default function StatsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Statistiques</h1>
+                        <h1 className="text-3xl font-bold">{t("title")}</h1>
                         <p className="text-muted-foreground">
-                            Analysez vos habitudes de dépenses
+                            {t("subtitle")}
                         </p>
                     </div>
-                    <Select value={timeRange} onValueChange={setTimeRange}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Période" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="3">3 derniers mois</SelectItem>
-                            <SelectItem value="6">6 derniers mois</SelectItem>
-                            <SelectItem value="12">12 derniers mois</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                        <ExportCSV data={transactions} filename={`masrouf_export_${new Date().toISOString().split('T')[0]}.csv`} />
+                        <Select value={timeRange} onValueChange={setTimeRange}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder={t("period")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="3">{t("last3Months")}</SelectItem>
+                                <SelectItem value="6">{t("last6Months")}</SelectItem>
+                                <SelectItem value="12">{t("last12Months")}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 {/* KPIs */}
@@ -115,26 +117,26 @@ export default function StatsPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
-                                Total Dépenses (Période)
+                                {t("totalExpenses")}
                             </CardTitle>
                             <TrendingUp className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {formatCurrency(totalExpenses)}
+                                {formatFormatter.number(totalExpenses, { style: 'currency', currency: 'TND' })}
                             </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
-                                Moyenne Mensuelle
+                                {t("monthlyAverage")}
                             </CardTitle>
                             <PieChartIcon className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {formatCurrency(averageMonthly)}
+                                {formatFormatter.number(averageMonthly, { style: 'currency', currency: 'TND' })}
                             </div>
                         </CardContent>
                     </Card>
@@ -145,7 +147,7 @@ export default function StatsPage() {
                     {/* Monthly Trend */}
                     <Card className="col-span-2 lg:col-span-1">
                         <CardHeader>
-                            <CardTitle>Évolution Mensuelle</CardTitle>
+                            <CardTitle>{t("monthlyTrend")}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="h-[300px]">
@@ -167,7 +169,7 @@ export default function StatsPage() {
                                             tickFormatter={(value) => `${value} TND`}
                                         />
                                         <Tooltip
-                                            formatter={(value: number) => formatCurrency(value)}
+                                            formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
                                             contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                                         />
                                         <Bar
@@ -184,7 +186,7 @@ export default function StatsPage() {
                     {/* Category Distribution */}
                     <Card className="col-span-2 lg:col-span-1">
                         <CardHeader>
-                            <CardTitle>Répartition par Catégorie</CardTitle>
+                            <CardTitle>{t("categoryDistribution")}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="h-[300px]">
@@ -204,7 +206,7 @@ export default function StatsPage() {
                                             ))}
                                         </Pie>
                                         <Tooltip
-                                            formatter={(value: number) => formatCurrency(value)}
+                                            formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
                                             contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                                         />
                                         <Legend />
@@ -214,6 +216,9 @@ export default function StatsPage() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Top Categories Table */}
+                <TopCategoriesTable data={expensesByCategory} totalExpenses={totalExpenses} />
             </div>
         </AppLayout>
     );

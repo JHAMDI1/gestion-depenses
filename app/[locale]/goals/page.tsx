@@ -11,10 +11,13 @@ import { Plus, Edit, Trash2, Target, Trophy } from "lucide-react";
 import { GoalDialog } from "@/components/goals/GoalDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { useTranslations, useFormatter } from "next-intl";
 
 export default function GoalsPage() {
+    const t = useTranslations("goals");
+    const tCommon = useTranslations("common");
+    const format = useFormatter();
+
     const goals = useQuery(api.goals.getGoals);
     const deleteGoal = useMutation(api.goals.deleteGoal);
     const updateGoalAmount = useMutation(api.goals.updateSavedAmount);
@@ -28,21 +31,13 @@ export default function GoalsPage() {
         deadline?: number;
     } | null>(null);
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("fr-TN", {
-            style: "currency",
-            currency: "TND",
-            minimumFractionDigits: 3,
-        }).format(amount);
-    };
-
     const handleDelete = async (id: Id<"goals">) => {
-        if (confirm("Êtes-vous sûr de vouloir supprimer cet objectif ?")) {
+        if (confirm(tCommon("confirmDelete"))) {
             try {
                 await deleteGoal({ id });
-                toast.success("Objectif supprimé");
+                toast.success(tCommon("delete") + " " + tCommon("success"));
             } catch (error) {
-                toast.error("Erreur lors de la suppression");
+                toast.error(tCommon("error"));
             }
         }
     };
@@ -64,15 +59,15 @@ export default function GoalsPage() {
     };
 
     const handleAddSavings = async (id: Id<"goals">, currentAmount: number) => {
-        const amountStr = prompt("Montant à ajouter à l'épargne (TND) :");
+        const amountStr = prompt(t("addSavingsPrompt"));
         if (amountStr) {
             const amount = parseFloat(amountStr);
             if (!isNaN(amount)) {
                 try {
                     await updateGoalAmount({ id, savedAmount: currentAmount + amount });
-                    toast.success("Épargne mise à jour !");
+                    toast.success(t("savingsUpdated"));
                 } catch (error) {
-                    toast.error("Erreur lors de la mise à jour");
+                    toast.error(tCommon("error"));
                 }
             }
         }
@@ -84,14 +79,14 @@ export default function GoalsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Objectifs</h1>
+                        <h1 className="text-3xl font-bold">{t("title")}</h1>
                         <p className="text-muted-foreground">
-                            Épargnez pour vos projets futurs
+                            {t("subtitle")}
                         </p>
                     </div>
                     <Button size="lg" className="gap-2" onClick={handleAdd}>
                         <Plus className="h-5 w-5" />
-                        Nouvel Objectif
+                        {t("newGoal")}
                     </Button>
                 </div>
 
@@ -101,13 +96,13 @@ export default function GoalsPage() {
                         <div className="rounded-full bg-muted p-4 mb-4">
                             <Target className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">Aucun objectif défini</h3>
+                        <h3 className="text-lg font-semibold mb-2">{t("noGoals")}</h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Fixez-vous des objectifs financiers pour réaliser vos projets
+                            {t("startSaving")}
                         </p>
                         <Button onClick={handleAdd}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Créer un Objectif
+                            <Plus className="me-2 h-4 w-4" />
+                            {t("createGoal")}
                         </Button>
                     </div>
                 ) : (
@@ -154,9 +149,9 @@ export default function GoalsPage() {
                                     <CardContent>
                                         <div className="space-y-4">
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-muted-foreground">Épargné</span>
+                                                <span className="text-muted-foreground">{t("saved")}</span>
                                                 <span className="font-medium">
-                                                    {formatCurrency(goal.savedAmount)}
+                                                    {format.number(goal.savedAmount, { style: 'currency', currency: 'TND' })}
                                                 </span>
                                             </div>
 
@@ -168,7 +163,7 @@ export default function GoalsPage() {
 
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">
-                                                    Cible : {formatCurrency(goal.targetAmount)}
+                                                    {t("target")} : {format.number(goal.targetAmount, { style: 'currency', currency: 'TND' })}
                                                 </span>
                                                 <span className="font-medium">
                                                     {percentage.toFixed(0)}%
@@ -176,8 +171,8 @@ export default function GoalsPage() {
                                             </div>
 
                                             {goal.deadline && (
-                                                <p className="text-xs text-muted-foreground text-right">
-                                                    Date limite : {format(new Date(goal.deadline), "dd MMM yyyy", { locale: fr })}
+                                                <p className="text-xs text-muted-foreground text-end">
+                                                    {t("deadline")} : {format.dateTime(new Date(goal.deadline), { dateStyle: 'medium' })}
                                                 </p>
                                             )}
 
@@ -187,8 +182,8 @@ export default function GoalsPage() {
                                                     className="w-full mt-2"
                                                     onClick={() => handleAddSavings(goal._id, goal.savedAmount)}
                                                 >
-                                                    <Plus className="mr-2 h-4 w-4" />
-                                                    Ajouter de l'épargne
+                                                    <Plus className="me-2 h-4 w-4" />
+                                                    {t("addSavings")}
                                                 </Button>
                                             )}
                                         </div>

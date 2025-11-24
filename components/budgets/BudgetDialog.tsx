@@ -23,6 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface BudgetDialogProps {
     open: boolean;
@@ -39,6 +40,8 @@ export function BudgetDialog({
     onOpenChange,
     budgetToEdit,
 }: BudgetDialogProps) {
+    const t = useTranslations("budgets");
+    const tCommon = useTranslations("common");
     const categories = useQuery(api.categories.getCategories);
     const setBudget = useMutation(api.budgets.setBudget);
 
@@ -54,7 +57,7 @@ export function BudgetDialog({
         e.preventDefault();
 
         if (!categoryId || !monthlyLimit) {
-            toast.error("Veuillez remplir tous les champs");
+            toast.error(tCommon("error"));
             return;
         }
 
@@ -67,7 +70,7 @@ export function BudgetDialog({
             });
 
             toast.success(
-                budgetToEdit ? "Budget mis à jour !" : "Budget défini avec succès !"
+                budgetToEdit ? t("budgetUpdated") : t("budgetDefined")
             );
 
             // Reset form
@@ -75,7 +78,7 @@ export function BudgetDialog({
             setMonthlyLimit("");
             onOpenChange(false);
         } catch (error) {
-            toast.error("Erreur lors de la définition du budget");
+            toast.error(tCommon("error"));
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -88,24 +91,24 @@ export function BudgetDialog({
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>
-                            {budgetToEdit ? "Modifier le Budget" : "Définir un Budget"}
+                            {budgetToEdit ? t("editBudget") : t("defineBudget")}
                         </DialogTitle>
                         <DialogDescription>
-                            Définissez une limite de dépenses mensuelle pour une catégorie.
+                            {t("defineBudgetDesc")}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         {/* Category */}
                         <div className="grid gap-2">
-                            <Label htmlFor="category">Catégorie</Label>
+                            <Label htmlFor="category">{t("category")}</Label>
                             <Select
                                 value={categoryId}
                                 onValueChange={setCategoryId}
                                 disabled={!!budgetToEdit}
                             >
                                 <SelectTrigger id="category">
-                                    <SelectValue placeholder="Sélectionner une catégorie" />
+                                    <SelectValue placeholder={t("selectCategory")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories?.map((category) => (
@@ -122,7 +125,7 @@ export function BudgetDialog({
 
                         {/* Amount */}
                         <div className="grid gap-2">
-                            <Label htmlFor="amount">Limite Mensuelle (TND)</Label>
+                            <Label htmlFor="amount">{t("monthlyLimit")}</Label>
                             <Input
                                 id="amount"
                                 type="number"
@@ -142,10 +145,10 @@ export function BudgetDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={isSubmitting}
                         >
-                            Annuler
+                            {tCommon("cancel")}
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+                            {isSubmitting ? tCommon("saving") : tCommon("save")}
                         </Button>
                     </DialogFooter>
                 </form>

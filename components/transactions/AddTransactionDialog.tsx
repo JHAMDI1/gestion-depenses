@@ -23,6 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface AddTransactionDialogProps {
     open: boolean;
@@ -33,6 +34,8 @@ export function AddTransactionDialog({
     open,
     onOpenChange,
 }: AddTransactionDialogProps) {
+    const t = useTranslations("transactions");
+    const tCommon = useTranslations("common");
     const categories = useQuery(api.categories.getCategories);
     const createTransaction = useMutation(api.transactions.createTransaction);
 
@@ -48,7 +51,7 @@ export function AddTransactionDialog({
         e.preventDefault();
 
         if (!name || !amount || !categoryId) {
-            toast.error("Veuillez remplir tous les champs");
+            toast.error(tCommon("error"));
             return;
         }
 
@@ -62,7 +65,7 @@ export function AddTransactionDialog({
                 date: new Date(date).getTime(),
             });
 
-            toast.success("Transaction ajoutée avec succès !");
+            toast.success(tCommon("success"));
 
             // Reset form
             setName("");
@@ -71,7 +74,7 @@ export function AddTransactionDialog({
             setDate(new Date().toISOString().split("T")[0]);
             onOpenChange(false);
         } catch (error) {
-            toast.error("Erreur lors de l'ajout de la transaction");
+            toast.error(tCommon("error"));
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -83,22 +86,22 @@ export function AddTransactionDialog({
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Ajouter une Dépense</DialogTitle>
+                        <DialogTitle>{t("addTransaction")}</DialogTitle>
                         <DialogDescription>
-                            Enregistrez une nouvelle transaction pour suivre vos dépenses.
+                            {t("addTransactionDesc")}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         {/* Category */}
                         <div className="grid gap-2">
-                            <Label htmlFor="category">Catégorie</Label>
+                            <Label htmlFor="category">{t("category")}</Label>
                             <Select
                                 value={categoryId}
                                 onValueChange={(value) => setCategoryId(value as Id<"categories">)}
                             >
                                 <SelectTrigger id="category">
-                                    <SelectValue placeholder="Sélectionner une catégorie" />
+                                    <SelectValue placeholder={t("selectCategory")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories?.map((category) => (
@@ -115,7 +118,7 @@ export function AddTransactionDialog({
 
                         {/* Name */}
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Description</Label>
+                            <Label htmlFor="name">{t("description")}</Label>
                             <Input
                                 id="name"
                                 placeholder="Ex: Courses du mois"
@@ -127,7 +130,7 @@ export function AddTransactionDialog({
 
                         {/* Amount */}
                         <div className="grid gap-2">
-                            <Label htmlFor="amount">Montant (TND)</Label>
+                            <Label htmlFor="amount">{t("amount")}</Label>
                             <Input
                                 id="amount"
                                 type="number"
@@ -141,7 +144,7 @@ export function AddTransactionDialog({
 
                         {/* Date */}
                         <div className="grid gap-2">
-                            <Label htmlFor="date">Date</Label>
+                            <Label htmlFor="date">{t("date")}</Label>
                             <Input
                                 id="date"
                                 type="date"
@@ -159,10 +162,10 @@ export function AddTransactionDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={isSubmitting}
                         >
-                            Annuler
+                            {tCommon("cancel")}
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Ajout..." : "Ajouter"}
+                            {isSubmitting ? tCommon("saving") : tCommon("add")}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -11,8 +11,13 @@ import { Plus, Edit, Trash2, Repeat, CalendarClock } from "lucide-react";
 import { RecurringDialog } from "@/components/recurrings/RecurringDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
+import { useTranslations, useFormatter } from "next-intl";
 
 export default function RecurringsPage() {
+    const t = useTranslations("recurrings");
+    const tCommon = useTranslations("common");
+    const format = useFormatter();
+
     const recurrings = useQuery(api.recurrings.getRecurrings);
     const deleteRecurring = useMutation(api.recurrings.deleteRecurring);
     const toggleRecurring = useMutation(api.recurrings.toggleRecurring);
@@ -27,23 +32,13 @@ export default function RecurringsPage() {
         isActive: boolean;
     } | null>(null);
 
-    // ...
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("fr-TN", {
-            style: "currency",
-            currency: "TND",
-            minimumFractionDigits: 3,
-        }).format(amount);
-    };
-
     const handleDelete = async (id: Id<"recurrings">) => {
-        if (confirm("Êtes-vous sûr de vouloir supprimer cette dépense récurrente ?")) {
+        if (confirm(tCommon("confirmDelete"))) {
             try {
                 await deleteRecurring({ id });
-                toast.success("Dépense supprimée");
+                toast.success(tCommon("delete") + " " + tCommon("success"));
             } catch (error) {
-                toast.error("Erreur lors de la suppression");
+                toast.error(tCommon("error"));
             }
         }
     };
@@ -51,9 +46,9 @@ export default function RecurringsPage() {
     const handleToggle = async (id: Id<"recurrings">, isActive: boolean) => {
         try {
             await toggleRecurring({ id, isActive });
-            toast.success(isActive ? "Récurrence activée" : "Récurrence désactivée");
+            toast.success(isActive ? t("activated") : t("deactivated"));
         } catch (error) {
-            toast.error("Erreur lors de la modification");
+            toast.error(tCommon("error"));
         }
     };
 
@@ -80,14 +75,14 @@ export default function RecurringsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Dépenses Récurrentes</h1>
+                        <h1 className="text-3xl font-bold">{t("title")}</h1>
                         <p className="text-muted-foreground">
-                            Gérez vos abonnements et charges fixes mensuelles
+                            {t("subtitle")}
                         </p>
                     </div>
                     <Button size="lg" className="gap-2" onClick={handleAdd}>
                         <Plus className="h-5 w-5" />
-                        Ajouter une Récurrence
+                        {t("newRecurring")}
                     </Button>
                 </div>
 
@@ -97,13 +92,13 @@ export default function RecurringsPage() {
                         <div className="rounded-full bg-muted p-4 mb-4">
                             <Repeat className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">Aucune dépense récurrente</h3>
+                        <h3 className="text-lg font-semibold mb-2">{t("noRecurrings")}</h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Ajoutez vos charges fixes (loyer, internet, abonnements) pour ne rien oublier
+                            {t("startTracking")}
                         </p>
                         <Button onClick={handleAdd}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Ajouter une Récurrence
+                            <Plus className="me-2 h-4 w-4" />
+                            {t("createRecurring")}
                         </Button>
                     </div>
                 ) : (
@@ -134,11 +129,11 @@ export default function RecurringsPage() {
                                         <div className="flex justify-between items-end">
                                             <div>
                                                 <p className="text-2xl font-bold">
-                                                    {formatCurrency(recurring.amount)}
+                                                    {format.number(recurring.amount, { style: 'currency', currency: 'TND' })}
                                                 </p>
                                                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                                                    <CalendarClock className="mr-1 h-3 w-3" />
-                                                    Le {recurring.dayOfMonth} du mois
+                                                    <CalendarClock className="me-1 h-3 w-3" />
+                                                    {t("dayOfMonth", { day: recurring.dayOfMonth })}
                                                 </div>
                                             </div>
                                         </div>
@@ -149,8 +144,8 @@ export default function RecurringsPage() {
                                                 size="sm"
                                                 onClick={() => handleEdit(recurring)}
                                             >
-                                                <Edit className="mr-2 h-3 w-3" />
-                                                Modifier
+                                                <Edit className="me-2 h-3 w-3" />
+                                                {tCommon("edit")}
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -158,8 +153,8 @@ export default function RecurringsPage() {
                                                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                                 onClick={() => handleDelete(recurring._id)}
                                             >
-                                                <Trash2 className="mr-2 h-3 w-3" />
-                                                Supprimer
+                                                <Trash2 className="me-2 h-3 w-3" />
+                                                {tCommon("delete")}
                                             </Button>
                                         </div>
                                     </div>

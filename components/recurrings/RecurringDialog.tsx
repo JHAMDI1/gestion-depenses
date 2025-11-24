@@ -23,6 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface RecurringDialogProps {
     open: boolean;
@@ -42,6 +43,8 @@ export function RecurringDialog({
     onOpenChange,
     recurringToEdit,
 }: RecurringDialogProps) {
+    const t = useTranslations("recurrings");
+    const tCommon = useTranslations("common");
     const categories = useQuery(api.categories.getCategories);
     const createRecurring = useMutation(api.recurrings.createRecurring);
     const updateRecurring = useMutation(api.recurrings.updateRecurring);
@@ -62,7 +65,7 @@ export function RecurringDialog({
         e.preventDefault();
 
         if (!name || !amount || !categoryId || !dayOfMonth) {
-            toast.error("Veuillez remplir tous les champs");
+            toast.error(tCommon("error"));
             return;
         }
 
@@ -82,10 +85,10 @@ export function RecurringDialog({
                     ...recurringData,
                     isActive: recurringToEdit.isActive,
                 });
-                toast.success("Dépense récurrente mise à jour !");
+                toast.success(t("recurringUpdated"));
             } else {
                 await createRecurring(recurringData);
-                toast.success("Dépense récurrente créée avec succès !");
+                toast.success(t("recurringCreated"));
             }
 
             // Reset form if creating new
@@ -97,7 +100,7 @@ export function RecurringDialog({
             }
             onOpenChange(false);
         } catch (error) {
-            toast.error("Erreur lors de l'enregistrement");
+            toast.error(tCommon("error"));
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -110,17 +113,17 @@ export function RecurringDialog({
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>
-                            {recurringToEdit ? "Modifier la Récurrence" : "Nouvelle Récurrence"}
+                            {recurringToEdit ? t("editRecurring") : t("newRecurring")}
                         </DialogTitle>
                         <DialogDescription>
-                            Ajoutez une dépense qui revient chaque mois (loyer, abonnement...).
+                            {t("newRecurringDesc")}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         {/* Name */}
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Nom</Label>
+                            <Label htmlFor="name">{t("name")}</Label>
                             <Input
                                 id="name"
                                 placeholder="Ex: Netflix, Loyer..."
@@ -132,13 +135,13 @@ export function RecurringDialog({
 
                         {/* Category */}
                         <div className="grid gap-2">
-                            <Label htmlFor="category">Catégorie</Label>
+                            <Label htmlFor="category">{t("category")}</Label>
                             <Select
                                 value={categoryId}
                                 onValueChange={setCategoryId}
                             >
                                 <SelectTrigger id="category">
-                                    <SelectValue placeholder="Sélectionner une catégorie" />
+                                    <SelectValue placeholder={t("selectCategory")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories?.map((category) => (
@@ -155,7 +158,7 @@ export function RecurringDialog({
 
                         {/* Amount */}
                         <div className="grid gap-2">
-                            <Label htmlFor="amount">Montant (TND)</Label>
+                            <Label htmlFor="amount">{t("amount")}</Label>
                             <Input
                                 id="amount"
                                 type="number"
@@ -169,7 +172,7 @@ export function RecurringDialog({
 
                         {/* Day of Month */}
                         <div className="grid gap-2">
-                            <Label htmlFor="day">Jour du mois (1-31)</Label>
+                            <Label htmlFor="day">{t("dayOfMonth")}</Label>
                             <Input
                                 id="day"
                                 type="number"
@@ -189,10 +192,10 @@ export function RecurringDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={isSubmitting}
                         >
-                            Annuler
+                            {tCommon("cancel")}
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+                            {isSubmitting ? tCommon("saving") : tCommon("save")}
                         </Button>
                     </DialogFooter>
                 </form>

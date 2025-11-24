@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+import { Link, usePathname } from "@/lib/navigation";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import {
     LayoutDashboard,
     Receipt,
@@ -13,28 +13,31 @@ import {
     Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Transactions", href: "/transactions", icon: Receipt },
-    { name: "Statistiques", href: "/stats", icon: BarChart3 },
-    { name: "Budgets", href: "/budgets", icon: Wallet },
-    { name: "Objectifs", href: "/goals", icon: Target },
-    { name: "Récurrentes", href: "/recurrings", icon: Repeat },
-    { name: "Paramètres", href: "/settings", icon: Settings },
-];
+import { LanguageSwitcher } from "@/components/settings/LanguageSwitcher";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const t = useTranslations("nav");
+    const tSettings = useTranslations("settings");
+
+    const navigation = [
+        { name: t("dashboard"), href: "/dashboard", icon: LayoutDashboard },
+        { name: t("transactions"), href: "/transactions", icon: Receipt },
+        { name: t("stats"), href: "/stats", icon: BarChart3 },
+        { name: t("budgets"), href: "/budgets", icon: Wallet },
+        { name: t("goals"), href: "/goals", icon: Target },
+        { name: t("recurrings"), href: "/recurrings", icon: Repeat },
+        { name: t("settings"), href: "/settings", icon: Settings },
+    ];
 
     return (
         <div className="flex h-screen bg-background">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-border bg-card">
+            <aside className="w-64 border-r border-border bg-card hidden md:block">
                 <div className="flex h-full flex-col">
                     {/* Logo */}
-                    <div className="flex h-16 items-center border-b border-border px-6">
-                        <Link href="/dashboard" className="flex items-center space-x-2">
+                    <div className="flex h-16 items-center justify-between border-b border-border px-6">
+                        <Link href="/dashboard" className="flex items-center gap-2">
                             <div className="text-2xl font-bold text-primary">مصروف</div>
                         </Link>
                     </div>
@@ -45,10 +48,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                             const isActive = pathname === item.href;
                             return (
                                 <Link
-                                    key={item.name}
+                                    key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                                         isActive
                                             ? "bg-primary text-primary-foreground"
                                             : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -61,13 +64,23 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         })}
                     </nav>
 
-                    {/* User Profile */}
-                    <div className="border-t border-border p-4">
-                        <div className="flex items-center space-x-3">
-                            <UserButton afterSignOutUrl="/" />
-                            <div className="flex-1">
-                                <p className="text-sm font-medium">Mon Compte</p>
+                    {/* User Profile & Language */}
+                    <div className="border-t border-border p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div suppressHydrationWarning>
+                                    <SignedIn>
+                                        <UserButton afterSignOutUrl="/" />
+                                    </SignedIn>
+                                    <SignedOut>
+                                        <div className="h-8 w-8 rounded-full bg-muted" />
+                                    </SignedOut>
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium">{tSettings("profile")}</p>
+                                </div>
                             </div>
+                            <LanguageSwitcher />
                         </div>
                     </div>
                 </div>

@@ -8,59 +8,74 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, TrendingUp, Wallet, AlertCircle, Receipt } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
+import { useTranslations, useFormatter, useLocale } from "next-intl";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function DashboardPage() {
-    const monthlyTotal = useQuery(api.transactions.getMonthlyTotal);
-    const recentTransactions = useQuery(api.transactions.getRecentTransactions);
-    const categories = useQuery(api.categories.getCategories);
+    const tCommon = useTranslations("common");
+    return (
+        <AppLayout>
+            <SignedIn>
+                <DashboardContent />
+            </SignedIn>
+            <SignedOut>
+                <div className="flex min-h-[50vh] items-center justify-center">
+                    <SignInButton mode="modal">
+                        <Button size="lg">{tCommon("signIn")}</Button>
+                    </SignInButton>
+                </div>
+            </SignedOut>
+        </AppLayout>
+    );
+}
+
+function DashboardContent() {
+    const t = useTranslations("dashboard");
+    const tCommon = useTranslations("common");
+    const tTrans = useTranslations("transactions");
+    const format = useFormatter();
+    const locale = useLocale();
+
+    const monthlyTotal = useQuery(api.transactions.getMonthlyTotal, {});
+    const recentTransactions = useQuery(api.transactions.getRecentTransactions, {});
+    const categories = useQuery(api.categories.getCategories, {});
     const seedCategories = useMutation(api.categories.seedDefaultCategories);
 
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-    // Initialiser les catégories par défaut si aucune n'existe
     useEffect(() => {
         if (categories && categories.length === 0) {
-            seedCategories();
+            seedCategories({ locale });
         }
-    }, [categories, seedCategories]);
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("fr-TN", {
-            style: "currency",
-            currency: "TND",
-            minimumFractionDigits: 3,
-        }).format(amount);
-    };
+    }, [categories, seedCategories, locale]);
 
     return (
-        <AppLayout>
+        <>
             <div className="space-y-8">
-                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Tableau de Bord</h1>
+                        <h1 className="text-3xl font-bold">{t("title")}</h1>
                         <p className="text-muted-foreground">
-                            Bienvenue sur Masrouf - Gérez vos finances en toute simplicité
+                            {tCommon("appName")} - {t("monthSummary")}
                         </p>
                     </div>
                     <Button size="lg" className="gap-2" onClick={() => setIsAddDialogOpen(true)}>
                         <Plus className="h-5 w-5" />
-                        Ajouter une Dépense
+                        {t("addExpense")}
                     </Button>
                 </div>
 
-                {/* Summary Cards */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
-                                Total du Mois
+                                {t("totalSpent")}
                             </CardTitle>
                             <TrendingUp className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {monthlyTotal ? formatCurrency(monthlyTotal.total) : "0.000 TND"}
+                                {monthlyTotal ? format.number(monthlyTotal.total, { style: 'currency', currency: 'TND' }) : format.number(0, { style: 'currency', currency: 'TND' })}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {monthlyTotal?.count || 0} transaction(s)
@@ -71,36 +86,35 @@ export default function DashboardPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
-                                Budget Restant
+                                {t("remainingBudget")}
                             </CardTitle>
                             <Wallet className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">-</div>
                             <p className="text-xs text-muted-foreground">
-                                Définissez vos budgets
+                                {t("remainingBudget")}
                             </p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Alertes</CardTitle>
+                            <CardTitle className="text-sm font-medium">{t("alerts")}</CardTitle>
                             <AlertCircle className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">0</div>
                             <p className="text-xs text-muted-foreground">
-                                Aucun budget dépassé
+                                {t("noBudgetExceeded")}
                             </p>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Recent Transactions */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Transactions Récentes</CardTitle>
+                        <CardTitle>{t("recentTransactions")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {!recentTransactions || recentTransactions.length === 0 ? (
@@ -109,15 +123,11 @@ export default function DashboardPage() {
                                     <Receipt className="h-8 w-8 text-muted-foreground" />
                                 </div>
                                 <h3 className="text-lg font-semibold mb-2">
-                                    Aucune transaction
+                                    {tTrans("noTransactions")}
                                 </h3>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Commencez à suivre vos dépenses en ajoutant votre première
-                                    transaction
-                                </p>
                                 <Button onClick={() => setIsAddDialogOpen(true)}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Ajouter une Dépense
+                                    <Plus className="me-2 h-4 w-4" />
+                                    {t("addExpense")}
                                 </Button>
                             </div>
                         ) : (
@@ -127,7 +137,7 @@ export default function DashboardPage() {
                                         key={transaction._id}
                                         className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
                                     >
-                                        <div className="flex items-center space-x-4">
+                                        <div className="flex items-center gap-4">
                                             <div
                                                 className="flex h-10 w-10 items-center justify-center rounded-full"
                                                 style={{
@@ -141,16 +151,16 @@ export default function DashboardPage() {
                                             <div>
                                                 <p className="font-medium">{transaction.name}</p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {transaction.category?.name || "Sans catégorie"}
+                                                    {transaction.category?.name || tCommon("uncategorized")}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
+                                        <div className="text-end">
                                             <p className="font-semibold">
-                                                {formatCurrency(transaction.amount)}
+                                                {format.number(transaction.amount, { style: 'currency', currency: 'TND' })}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                {new Date(transaction.date).toLocaleDateString("fr-FR")}
+                                                {format.dateTime(new Date(transaction.date), { dateStyle: 'short' })}
                                             </p>
                                         </div>
                                     </div>
@@ -161,11 +171,10 @@ export default function DashboardPage() {
                 </Card>
             </div>
 
-            {/* Add Transaction Dialog */}
             <AddTransactionDialog
                 open={isAddDialogOpen}
                 onOpenChange={setIsAddDialogOpen}
             />
-        </AppLayout>
+        </>
     );
 }

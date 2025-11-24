@@ -11,9 +11,33 @@ import { Plus, Edit, Trash2, AlertTriangle } from "lucide-react";
 import { BudgetDialog } from "@/components/budgets/BudgetDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
+import { useTranslations, useFormatter } from "next-intl";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function BudgetsPage() {
-    const budgets = useQuery(api.budgets.getBudgets);
+    const tCommon = useTranslations("common");
+    return (
+        <AppLayout>
+            <SignedIn>
+                <BudgetsContent />
+            </SignedIn>
+            <SignedOut>
+                <div className="flex min-h-[50vh] items-center justify-center">
+                    <SignInButton mode="modal">
+                        <Button size="lg">{tCommon("signIn")}</Button>
+                    </SignInButton>
+                </div>
+            </SignedOut>
+        </AppLayout>
+    );
+}
+
+function BudgetsContent() {
+    const t = useTranslations("budgets");
+    const tCommon = useTranslations("common");
+    const format = useFormatter();
+
+    const budgets = useQuery(api.budgets.getBudgets, {});
     const deleteBudget = useMutation(api.budgets.deleteBudget);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,21 +47,13 @@ export default function BudgetsPage() {
         monthlyLimit: number;
     } | null>(null);
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("fr-TN", {
-            style: "currency",
-            currency: "TND",
-            minimumFractionDigits: 3,
-        }).format(amount);
-    };
-
     const handleDelete = async (id: Id<"budgets">) => {
-        if (confirm("Êtes-vous sûr de vouloir supprimer ce budget ?")) {
+        if (confirm(tCommon("confirmDelete"))) {
             try {
                 await deleteBudget({ id });
-                toast.success("Budget supprimé");
+                toast.success(tCommon("delete") + " " + tCommon("success"));
             } catch (error) {
-                toast.error("Erreur lors de la suppression");
+                toast.error(tCommon("error"));
             }
         }
     };
@@ -57,36 +73,33 @@ export default function BudgetsPage() {
     };
 
     return (
-        <AppLayout>
+        <>
             <div className="space-y-8">
-                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Budgets</h1>
+                        <h1 className="text-3xl font-bold">{t("title")}</h1>
                         <p className="text-muted-foreground">
-                            Définissez et suivez vos limites de dépenses mensuelles
+                            {t("subtitle")}
                         </p>
                     </div>
                     <Button size="lg" className="gap-2" onClick={handleAdd}>
                         <Plus className="h-5 w-5" />
-                        Définir un Budget
+                        {t("defineBudget")}
                     </Button>
                 </div>
 
-                {/* Budgets List */}
                 {!budgets || budgets.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center bg-card rounded-lg border border-border">
                         <div className="rounded-full bg-muted p-4 mb-4">
                             <AlertTriangle className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">Aucun budget défini</h3>
+                        <h3 className="text-lg font-semibold mb-2">{t("noBudgets")}</h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Commencez à contrôler vos dépenses en définissant des limites par
-                            catégorie
+                            {t("startTracking")}
                         </p>
                         <Button onClick={handleAdd}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Définir un Budget
+                            <Plus className="me-2 h-4 w-4" />
+                            {t("defineBudget")}
                         </Button>
                     </div>
                 ) : (
@@ -137,9 +150,9 @@ export default function BudgetsPage() {
                                     <CardContent>
                                         <div className="space-y-4">
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-muted-foreground">Dépensé</span>
+                                                <span className="text-muted-foreground">{t("spent")}</span>
                                                 <span className="font-medium">
-                                                    {formatCurrency(budget.spent)}
+                                                    {format.number(budget.spent, { style: 'currency', currency: 'TND' })}
                                                 </span>
                                             </div>
 
@@ -151,7 +164,7 @@ export default function BudgetsPage() {
 
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">
-                                                    Limite : {formatCurrency(budget.monthlyLimit)}
+                                                    {t("limit")} : {format.number(budget.monthlyLimit, { style: 'currency', currency: 'TND' })}
                                                 </span>
                                                 <span
                                                     className={
@@ -161,8 +174,8 @@ export default function BudgetsPage() {
                                                     }
                                                 >
                                                     {isOverBudget
-                                                        ? `+${formatCurrency(budget.spent - budget.monthlyLimit)}`
-                                                        : `${formatCurrency(budget.remaining)} restants`}
+                                                        ? `+${format.number(budget.spent - budget.monthlyLimit, { style: 'currency', currency: 'TND' })}`
+                                                        : `${format.number(budget.remaining, { style: 'currency', currency: 'TND' })} ${t("remaining")}`}
                                                 </span>
                                             </div>
                                         </div>
@@ -179,6 +192,6 @@ export default function BudgetsPage() {
                 onOpenChange={setIsDialogOpen}
                 budgetToEdit={budgetToEdit}
             />
-        </AppLayout>
+        </>
     );
 }

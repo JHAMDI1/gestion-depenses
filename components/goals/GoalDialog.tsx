@@ -22,10 +22,11 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, ar } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslations, useLocale } from "next-intl";
 
 interface GoalDialogProps {
     open: boolean;
@@ -44,6 +45,9 @@ export function GoalDialog({
     onOpenChange,
     goalToEdit,
 }: GoalDialogProps) {
+    const t = useTranslations("goals");
+    const tCommon = useTranslations("common");
+    const locale = useLocale();
     const createGoal = useMutation(api.goals.createGoal);
     const updateGoal = useMutation(api.goals.updateGoal);
 
@@ -63,7 +67,7 @@ export function GoalDialog({
         e.preventDefault();
 
         if (!name || !targetAmount) {
-            toast.error("Veuillez remplir le nom et le montant cible");
+            toast.error(tCommon("error"));
             return;
         }
 
@@ -82,10 +86,10 @@ export function GoalDialog({
                     id: goalToEdit._id,
                     ...goalData,
                 });
-                toast.success("Objectif mis à jour !");
+                toast.success(t("goalUpdated"));
             } else {
                 await createGoal(goalData);
-                toast.success("Objectif créé avec succès !");
+                toast.success(t("goalCreated"));
             }
 
             // Reset form if creating new
@@ -97,7 +101,7 @@ export function GoalDialog({
             }
             onOpenChange(false);
         } catch (error) {
-            toast.error("Erreur lors de l'enregistrement");
+            toast.error(tCommon("error"));
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -110,17 +114,17 @@ export function GoalDialog({
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>
-                            {goalToEdit ? "Modifier l'Objectif" : "Nouvel Objectif"}
+                            {goalToEdit ? t("editGoal") : t("newGoal")}
                         </DialogTitle>
                         <DialogDescription>
-                            Définissez un objectif d'épargne et suivez votre progression.
+                            {t("newGoalDesc")}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         {/* Name */}
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Nom de l'objectif</Label>
+                            <Label htmlFor="name">{t("goalName")}</Label>
                             <Input
                                 id="name"
                                 placeholder="Ex: Vacances, Voiture..."
@@ -132,7 +136,7 @@ export function GoalDialog({
 
                         {/* Target Amount */}
                         <div className="grid gap-2">
-                            <Label htmlFor="target">Montant Cible (TND)</Label>
+                            <Label htmlFor="target">{t("targetAmount")}</Label>
                             <Input
                                 id="target"
                                 type="number"
@@ -146,7 +150,7 @@ export function GoalDialog({
 
                         {/* Saved Amount */}
                         <div className="grid gap-2">
-                            <Label htmlFor="saved">Déjà Épargné (TND)</Label>
+                            <Label htmlFor="saved">{t("savedAmount")}</Label>
                             <Input
                                 id="saved"
                                 type="number"
@@ -159,7 +163,7 @@ export function GoalDialog({
 
                         {/* Deadline */}
                         <div className="grid gap-2">
-                            <Label>Date limite (Optionnel)</Label>
+                            <Label>{t("deadline")} ({tCommon("optional")})</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -171,9 +175,9 @@ export function GoalDialog({
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                         {deadline ? (
-                                            format(deadline, "PPP", { locale: fr })
+                                            format(deadline, "PPP", { locale: locale === "ar" ? ar : fr })
                                         ) : (
-                                            <span>Choisir une date</span>
+                                            <span>{t("pickDate")}</span>
                                         )}
                                     </Button>
                                 </PopoverTrigger>
@@ -196,10 +200,10 @@ export function GoalDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={isSubmitting}
                         >
-                            Annuler
+                            {tCommon("cancel")}
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+                            {isSubmitting ? tCommon("saving") : tCommon("save")}
                         </Button>
                     </DialogFooter>
                 </form>
