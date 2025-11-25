@@ -12,8 +12,27 @@ import { GoalDialog } from "@/components/goals/GoalDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { useTranslations, useFormatter } from "next-intl";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function GoalsPage() {
+    const tCommon = useTranslations("common");
+    return (
+        <AppLayout>
+            <SignedIn>
+                <GoalsContent />
+            </SignedIn>
+            <SignedOut>
+                <div className="flex min-h-[50vh] items-center justify-center">
+                    <SignInButton mode="modal">
+                        <Button size="lg">{tCommon("signIn")}</Button>
+                    </SignInButton>
+                </div>
+            </SignedOut>
+        </AppLayout>
+    );
+}
+
+function GoalsContent() {
     const t = useTranslations("goals");
     const tCommon = useTranslations("common");
     const format = useFormatter();
@@ -74,7 +93,7 @@ export default function GoalsPage() {
     };
 
     return (
-        <AppLayout>
+        <>
             <div className="space-y-8">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -200,6 +219,6 @@ export default function GoalsPage() {
                 onOpenChange={setIsDialogOpen}
                 goalToEdit={goalToEdit}
             />
-        </AppLayout>
+        </>
     );
 }

@@ -51,7 +51,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                     key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ease-out",
                                         isActive
                                             ? "bg-primary text-primary-foreground"
                                             : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -88,8 +88,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto">
-                <div className="container mx-auto p-8">{children}</div>
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-6">{children}</div>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <nav className="md:hidden fixed inset-x-0 bottom-0 border-t border-border bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+                <div className="flex items-stretch justify-between gap-1 px-2 py-1">
+                    {navigation.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={`mobile-${item.href}`}
+                                href={item.href}
+                                aria-label={item.name}
+                                className={cn(
+                                    "flex flex-1 flex-col items-center justify-center gap-1 rounded-md p-2 text-[11px] font-medium transition-colors duration-200 ease-out",
+                                    isActive
+                                        ? "text-primary bg-accent"
+                                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                )}
+                            >
+                                <item.icon className="h-5 w-5" />
+                                <span className="leading-none">{item.name}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+            </nav>
         </div>
     );
 }

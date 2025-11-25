@@ -13,6 +13,7 @@ import type * as categories from "../categories.js";
 import type * as goals from "../goals.js";
 import type * as http from "../http.js";
 import type * as recurrings from "../recurrings.js";
+import type * as stats from "../stats.js";
 import type * as transactions from "../transactions.js";
 
 import type {
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   goals: typeof goals;
   http: typeof http;
   recurrings: typeof recurrings;
+  stats: typeof stats;
   transactions: typeof transactions;
 }>;
 

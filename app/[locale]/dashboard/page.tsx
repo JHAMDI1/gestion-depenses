@@ -135,13 +135,15 @@ function DashboardContent() {
                                 {recentTransactions.map((transaction) => (
                                     <div
                                         key={transaction._id}
-                                        className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
+                                        className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0 transition-colors duration-200 ease-out"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div
-                                                className="flex h-10 w-10 items-center justify-center rounded-full"
+                                                className="flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ease-out"
                                                 style={{
-                                                    backgroundColor: transaction.category?.color + "20",
+                                                    backgroundColor: transaction.category?.color
+                                                        ? `${transaction.category.color}20`
+                                                        : 'var(--color-muted)',
                                                 }}
                                             >
                                                 <span className="text-lg">

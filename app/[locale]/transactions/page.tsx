@@ -26,8 +26,27 @@ import { AddTransactionDialog } from "@/components/transactions/AddTransactionDi
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { useTranslations, useFormatter } from "next-intl";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function TransactionsPage() {
+    const tCommon = useTranslations("common");
+    return (
+        <AppLayout>
+            <SignedIn>
+                <TransactionsContent />
+            </SignedIn>
+            <SignedOut>
+                <div className="flex min-h-[50vh] items-center justify-center">
+                    <SignInButton mode="modal">
+                        <Button size="lg">{tCommon("signIn")}</Button>
+                    </SignInButton>
+                </div>
+            </SignedOut>
+        </AppLayout>
+    );
+}
+
+function TransactionsContent() {
     const t = useTranslations("transactions");
     const tCommon = useTranslations("common");
     const format = useFormatter();
@@ -51,7 +70,6 @@ export default function TransactionsPage() {
         }
     };
 
-    // Filtrage des transactions
     const filteredTransactions = transactions?.filter((transaction) => {
         const matchesSearch = transaction.name
             .toLowerCase()
@@ -62,9 +80,8 @@ export default function TransactionsPage() {
     });
 
     return (
-        <AppLayout>
+        <>
             <div className="space-y-8">
-                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold">{t("title")}</h1>
@@ -78,7 +95,6 @@ export default function TransactionsPage() {
                     </Button>
                 </div>
 
-                {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-lg border border-border">
                     <div className="relative w-full sm:w-72">
                         <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -93,7 +109,7 @@ export default function TransactionsPage() {
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <Filter className="h-4 w-4 text-muted-foreground" />
                         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full sm:w-[180px]">
                                 <SelectValue placeholder={t("allCategories")} />
                             </SelectTrigger>
                             <SelectContent>
@@ -111,8 +127,8 @@ export default function TransactionsPage() {
                     </div>
                 </div>
 
-                {/* Transactions Table */}
                 <div className="rounded-md border bg-card">
+                    <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -142,9 +158,11 @@ export default function TransactionsPage() {
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <span
-                                                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs"
+                                                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs transition-colors duration-200 ease-out"
                                                     style={{
-                                                        backgroundColor: transaction.category?.color + "20",
+                                                        backgroundColor: transaction.category?.color
+                                                            ? `${transaction.category.color}20`
+                                                            : 'var(--color-muted)',
                                                     }}
                                                 >
                                                     {transaction.category?.icon}
@@ -175,6 +193,7 @@ export default function TransactionsPage() {
                             )}
                         </TableBody>
                     </Table>
+                    </div>
                 </div>
             </div>
 
@@ -182,6 +201,6 @@ export default function TransactionsPage() {
                 open={isAddDialogOpen}
                 onOpenChange={setIsAddDialogOpen}
             />
-        </AppLayout>
+        </>
     );
 }

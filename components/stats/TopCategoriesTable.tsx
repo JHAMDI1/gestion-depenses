@@ -36,6 +36,7 @@ export function TopCategoriesTable({ data, totalExpenses }: TopCategoriesTablePr
                 <CardTitle>{t("categoryDistribution")}</CardTitle>
             </CardHeader>
             <CardContent>
+                <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -64,6 +65,7 @@ export function TopCategoriesTable({ data, totalExpenses }: TopCategoriesTablePr
                         ))}
                     </TableBody>
                 </Table>
+                </div>
             </CardContent>
         </Card>
     );
