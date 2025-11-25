@@ -12,8 +12,27 @@ import { RecurringDialog } from "@/components/recurrings/RecurringDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { useTranslations, useFormatter } from "next-intl";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function RecurringsPage() {
+    const tCommon = useTranslations("common");
+    return (
+        <AppLayout>
+            <SignedIn>
+                <RecurringsContent />
+            </SignedIn>
+            <SignedOut>
+                <div className="flex min-h-[50vh] items-center justify-center">
+                    <SignInButton mode="modal">
+                        <Button size="lg">{tCommon("signIn")}</Button>
+                    </SignInButton>
+                </div>
+            </SignedOut>
+        </AppLayout>
+    );
+}
+
+function RecurringsContent() {
     const t = useTranslations("recurrings");
     const tCommon = useTranslations("common");
     const format = useFormatter();
@@ -70,7 +89,7 @@ export default function RecurringsPage() {
     };
 
     return (
-        <AppLayout>
+        <>
             <div className="space-y-8">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -108,9 +127,11 @@ export default function RecurringsPage() {
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <div className="flex items-center gap-2">
                                         <span
-                                            className="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+                                            className="flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ease-out"
                                             style={{
-                                                backgroundColor: recurring.category?.color + "20",
+                                                backgroundColor: recurring.category?.color
+                                                    ? `${recurring.category.color}20`
+                                                    : 'var(--color-muted)',
                                             }}
                                         >
                                             {recurring.category?.icon}
@@ -170,6 +191,6 @@ export default function RecurringsPage() {
                 onOpenChange={setIsDialogOpen}
                 recurringToEdit={recurringToEdit}
             />
-        </AppLayout>
+        </>
     );
 }

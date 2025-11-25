@@ -109,7 +109,7 @@ function BudgetsContent() {
                             const progressColor = isOverBudget
                                 ? "bg-destructive"
                                 : budget.percentage > 80
-                                    ? "bg-yellow-500"
+                                    ? "bg-[var(--color-warning)]"
                                     : "bg-primary";
 
                             return (
@@ -117,9 +117,11 @@ function BudgetsContent() {
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                         <div className="flex items-center gap-2">
                                             <span
-                                                className="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+                                                className="flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ease-out"
                                                 style={{
-                                                    backgroundColor: budget.category?.color + "20",
+                                                    backgroundColor: budget.category?.color
+                                                        ? `${budget.category.color}20`
+                                                        : 'var(--color-muted)',
                                                 }}
                                             >
                                                 {budget.category?.icon}
@@ -170,7 +172,7 @@ function BudgetsContent() {
                                                     className={
                                                         isOverBudget
                                                             ? "text-destructive font-medium"
-                                                            : "text-green-500 font-medium"
+                                                            : "text-[var(--color-success)] font-medium"
                                                     }
                                                 >
                                                     {isOverBudget

@@ -67,10 +67,14 @@ Voir `.env.example` pour la liste complète des variables requises.
 ### Clerk (Authentification)
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
+- `CLERK_HOSTNAME` (ex: `your-subdomain.clerk.accounts.dev`)
 
 ### Convex (Base de données)
-- `CONVEX_DEPLOYMENT`
-- `NEXT_PUBLIC_CONVEX_URL`
+- `CONVEX_DEPLOYMENT` (ex: `prod:uncommon-spoonbill-708`)
+- `NEXT_PUBLIC_CONVEX_URL` (ex: `https://uncommon-spoonbill-708.convex.cloud`)
+
+### Site
+- `NEXT_PUBLIC_SITE_URL` (ex: `https://gestion-depences.vercel.app`)
 
 ## 📁 Structure du Projet
 
@@ -134,3 +138,49 @@ Privé
 ## 👨‍💻 Auteur
 
 Développé avec ❤️ pour une gestion financière simplifiée
+
+---
+
+## 🧱 Architecture & Scalabilité
+
+- **Next.js 16 (App Router)**
+  - Rendu côté serveur et client avec layouts imbriqués
+  - i18n via `next-intl` (chargement paresseux des messages par locale)
+- **Middleware unifié**
+  - `clerkMiddleware` + `next-intl` pour protéger les routes et gérer la locale
+- **Auth & Données**
+  - Clerk pour l'auth (SSR-friendly), `SignedIn/SignedOut` côté client pour éviter les requêtes non authentifiées
+  - Convex côté backend: accès scellé par `userId`, index `by_user` sur les collections
+  - Providers: `ConvexProviderWithClerk` pour propager le contexte d'auth
+- **Performance**
+  - Gating des pages protégées empêche les requêtes Convex avant login
+  - Agrégations lourdes à déplacer côté Convex (Phase V1 Stats backend)
+- **Internationalisation & RTL**
+  - `lang`/`dir` dynamiques au layout, classes utilitaires logiques (start/end)
+- **Déploiement**
+  - Vercel (serverless + cache), Convex cloud (temps réel, scaling géré)
+
+## 🌐 Environnements & URLs
+
+- Prod: `https://gestion-depences.vercel.app`
+- Convex Prod: p.ex. `https://uncommon-spoonbill-708.convex.cloud`
+- Assurez-vous d'ajouter les domaines Vercel dans Clerk (Verified domains / Authorized origins)
+
+## 🔎 SEO
+
+- Routes générées: `app/sitemap.ts`, `app/robots.ts`
+- Définir `NEXT_PUBLIC_SITE_URL` en prod pour des URLs correctes
+- À faire (V1): metadata locales (title/description), Open Graph/Twitter cards
+
+## 🤖 Intégration LLM (Optionnelle – V1)
+
+- Cas d'usage:
+  - Analyse des dépenses par catégorie (insights, recommandations)
+  - Requêtes en langage naturel: "Montre-moi mes dépenses du mois dernier en transport"
+  - Suggestions de budgets et économies
+- Implémentation (proposée):
+  - API route sécurisée `/api/ai/analyze` utilisant un provider LLM (clé via `OPENAI_API_KEY` ou équivalent)
+  - Agréger côté Convex puis résumer via LLM (pas d'envoi de données brutes non nécessaires)
+- Sécurité & vie privée:
+  - Masquer PII, anonymiser si besoin
+  - Ne jamais embarquer une clé en client-side, toujours via route serveur
