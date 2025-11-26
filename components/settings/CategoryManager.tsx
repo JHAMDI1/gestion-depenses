@@ -73,58 +73,67 @@ export function CategoryManager() {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">{t("myCategories")}</h3>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm">
+                        <Button size="sm" className="shadow-md hover:shadow-primary/20">
                             <Plus className="me-2 h-4 w-4" />
                             {t("newCategory")}
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl">
                         <form onSubmit={handleSubmit}>
                             <DialogHeader>
-                                <DialogTitle>{t("addCategory")}</DialogTitle>
+                                <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent w-fit">{t("addCategory")}</DialogTitle>
                                 <DialogDescription>
                                     {t("addCategoryDesc")}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-5 py-6">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">{t("name")}</Label>
+                                    <Label htmlFor="name" className="text-sm font-medium text-foreground/80">{t("name")}</Label>
                                     <Input
                                         id="name"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="Ex: Restaurants"
+                                        className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
                                     />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="icon">{t("icon")}</Label>
+                                        <Label htmlFor="icon" className="text-sm font-medium text-foreground/80">{t("icon")}</Label>
                                         <Input
                                             id="icon"
                                             value={icon}
                                             onChange={(e) => setIcon(e.target.value)}
                                             placeholder="🍔"
+                                            className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors text-center text-lg"
                                         />
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="color">{t("color")}</Label>
-                                        <Input
-                                            id="color"
-                                            type="color"
-                                            value={color}
-                                            onChange={(e) => setColor(e.target.value)}
-                                            className="h-10 w-full p-1"
-                                        />
+                                        <Label htmlFor="color" className="text-sm font-medium text-foreground/80">{t("color")}</Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                id="color"
+                                                type="color"
+                                                value={color}
+                                                onChange={(e) => setColor(e.target.value)}
+                                                className="h-10 w-12 p-1 border-input/50 bg-background/50 cursor-pointer"
+                                            />
+                                            <Input
+                                                value={color}
+                                                onChange={(e) => setColor(e.target.value)}
+                                                className="h-10 flex-1 border-input/50 bg-background/50 focus:bg-background transition-colors uppercase"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button type="submit" disabled={isSubmitting}>
+                                <Button type="submit" disabled={isSubmitting} className="shadow-lg shadow-primary/20">
                                     {tCommon("create")}
                                 </Button>
                             </DialogFooter>
@@ -137,11 +146,11 @@ export function CategoryManager() {
                 {categories?.map((category) => (
                     <div
                         key={category._id}
-                        className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm"
+                        className="group flex items-center justify-between p-3 rounded-xl border border-border/50 bg-background/50 hover:bg-background hover:shadow-md hover:border-primary/20 transition-all duration-300"
                     >
                         <div className="flex items-center gap-3">
                             <span
-                                className="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+                                className="flex h-10 w-10 items-center justify-center rounded-lg text-lg shadow-sm transition-transform duration-300 group-hover:scale-110"
                                 style={{ backgroundColor: category.color + "20" }}
                             >
                                 {category.icon}
@@ -151,7 +160,7 @@ export function CategoryManager() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
                             onClick={() => handleDelete(category._id)}
                         >
                             <Trash2 className="h-4 w-4" />

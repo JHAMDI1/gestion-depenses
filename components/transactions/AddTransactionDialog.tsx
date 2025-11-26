@@ -83,24 +83,24 @@ export function AddTransactionDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>{t("addTransaction")}</DialogTitle>
+                        <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent w-fit">{t("addTransaction")}</DialogTitle>
                         <DialogDescription>
                             {t("addTransactionDesc")}
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-4 py-4">
+                    <div className="grid gap-5 py-6">
                         {/* Category */}
                         <div className="grid gap-2">
-                            <Label htmlFor="category">{t("category")}</Label>
+                            <Label htmlFor="category" className="text-sm font-medium text-foreground/80">{t("category")}</Label>
                             <Select
                                 value={categoryId}
                                 onValueChange={(value) => setCategoryId(value as Id<"categories">)}
                             >
-                                <SelectTrigger id="category">
+                                <SelectTrigger id="category" className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors">
                                     <SelectValue placeholder={t("selectCategory")} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -118,53 +118,64 @@ export function AddTransactionDialog({
 
                         {/* Name */}
                         <div className="grid gap-2">
-                            <Label htmlFor="name">{t("description")}</Label>
+                            <Label htmlFor="name" className="text-sm font-medium text-foreground/80">{t("description")}</Label>
                             <Input
                                 id="name"
                                 placeholder="Ex: Courses du mois"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
+                                className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
                             />
                         </div>
 
-                        {/* Amount */}
-                        <div className="grid gap-2">
-                            <Label htmlFor="amount">{t("amount")}</Label>
-                            <Input
-                                id="amount"
-                                type="number"
-                                step="0.001"
-                                placeholder="0.000"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                required
-                            />
-                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Amount */}
+                            <div className="grid gap-2">
+                                <Label htmlFor="amount" className="text-sm font-medium text-foreground/80">{t("amount")}</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="amount"
+                                        type="number"
+                                        step="0.001"
+                                        placeholder="0.000"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        required
+                                        className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors pe-12"
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground text-sm">
+                                        TND
+                                    </div>
+                                </div>
+                            </div>
 
-                        {/* Date */}
-                        <div className="grid gap-2">
-                            <Label htmlFor="date">{t("date")}</Label>
-                            <Input
-                                id="date"
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                required
-                            />
+                            {/* Date */}
+                            <div className="grid gap-2">
+                                <Label htmlFor="date" className="text-sm font-medium text-foreground/80">{t("date")}</Label>
+                                <Input
+                                    id="date"
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    required
+                                    className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-2 sm:gap-0">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                             disabled={isSubmitting}
+                            className="border-input/50 hover:bg-accent/50"
                         >
                             {tCommon("cancel")}
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
+                        <Button type="submit" disabled={isSubmitting} className="shadow-lg shadow-primary/20">
                             {isSubmitting ? tCommon("saving") : tCommon("add")}
                         </Button>
                     </DialogFooter>
