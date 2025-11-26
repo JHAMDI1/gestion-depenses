@@ -10,6 +10,7 @@ import {
     Wallet,
     Target,
     Repeat,
+    Handshake,
     Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         { name: t("budgets"), href: "/budgets", icon: Wallet },
         { name: t("goals"), href: "/goals", icon: Target },
         { name: t("recurrings"), href: "/recurrings", icon: Repeat },
+        { name: t("debts"), href: "/debts", icon: Handshake },
         { name: t("settings"), href: "/settings", icon: Settings },
     ];
 

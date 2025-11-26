@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import {
     Dialog,
     DialogContent,
@@ -15,38 +14,30 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
-interface AddTransactionDialogProps {
+interface DebtDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialogProps) {
-    const t = useTranslations("transactions");
+export function DebtDialog({ open, onOpenChange }: DebtDialogProps) {
+    const t = useTranslations("debts");
     const tCommon = useTranslations("common");
-    const createTransaction = useMutation(api.transactions.createTransaction);
-    const categories = useQuery(api.categories.getCategories);
+    const createDebt = useMutation(api.debts.createDebt);
 
-    const [name, setName] = useState("");
+    const [personName, setPersonName] = useState("");
     const [amount, setAmount] = useState("");
-    const [type, setType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
-    const [categoryId, setCategoryId] = useState<Id<"categories"> | "">("");
-    const [date, setDate] = useState<Date>(new Date());
+    const [type, setType] = useState<"LENT" | "BORROWED">("BORROWED");
+    const [dueDate, setDueDate] = useState("");
+    const [description, setDescription] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!name || !amount || !categoryId) {
+        if (!personName || !amount) {
             toast.error(tCommon("error"));
             return;
         }
@@ -54,19 +45,19 @@ export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialo
         setIsSubmitting(true);
 
         try {
-            await createTransaction({
-                name,
+            await createDebt({
+                personName,
                 amount: parseFloat(amount),
                 type,
-                categoryId: categoryId as Id<"categories">,
-                date: date.getTime(),
+                dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
+                description: description || undefined,
             });
             toast.success(tCommon("success"));
-            setName("");
+            setPersonName("");
             setAmount("");
-            setType("EXPENSE");
-            setCategoryId("");
-            setDate(new Date());
+            setType("BORROWED");
+            setDueDate("");
+            setDescription("");
             onOpenChange(false);
         } catch (error) {
             toast.error(tCommon("error"));
@@ -81,10 +72,10 @@ export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialo
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent w-fit">
-                            {t("addTransaction")}
+                            {t("addDebt")}
                         </DialogTitle>
                         <DialogDescription>
-                            {t("addTransactionDesc")}
+                            {t("addDebtDesc")}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-5 py-6">
@@ -93,30 +84,30 @@ export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialo
                             <div className="grid grid-cols-2 gap-2">
                                 <Button
                                     type="button"
-                                    variant={type === "EXPENSE" ? "default" : "outline"}
-                                    className={type === "EXPENSE" ? "" : "border-border/50"}
-                                    onClick={() => setType("EXPENSE")}
+                                    variant={type === "BORROWED" ? "default" : "outline"}
+                                    className={type === "BORROWED" ? "bg-red-600 hover:bg-red-700" : "border-border/50"}
+                                    onClick={() => setType("BORROWED")}
                                 >
-                                    {tCommon("expense")}
+                                    {t("borrowed")}
                                 </Button>
                                 <Button
                                     type="button"
-                                    variant={type === "INCOME" ? "default" : "outline"}
-                                    className={type === "INCOME" ? "bg-green-600 hover:bg-green-700" : "border-border/50"}
-                                    onClick={() => setType("INCOME")}
+                                    variant={type === "LENT" ? "default" : "outline"}
+                                    className={type === "LENT" ? "bg-green-600 hover:bg-green-700" : "border-border/50"}
+                                    onClick={() => setType("LENT")}
                                 >
-                                    {tCommon("income")}
+                                    {t("lent")}
                                 </Button>
                             </div>
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="name" className="text-sm font-medium text-foreground/80">{t("description")}</Label>
+                            <Label htmlFor="personName" className="text-sm font-medium text-foreground/80">{t("personName")}</Label>
                             <Input
-                                id="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder={t("descriptionPlaceholder")}
+                                id="personName"
+                                value={personName}
+                                onChange={(e) => setPersonName(e.target.value)}
+                                placeholder={t("personNamePlaceholder")}
                                 className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
                             />
                         </div>
@@ -135,31 +126,23 @@ export function AddTransactionDialog({ open, onOpenChange }: AddTransactionDialo
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="category" className="text-sm font-medium text-foreground/80">{t("category")}</Label>
-                            <Select value={categoryId as string} onValueChange={(value) => setCategoryId(value as Id<"categories">)}>
-                                <SelectTrigger className="h-10 border-input/50 bg-background/50">
-                                    <SelectValue placeholder={t("selectCategory")} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {categories?.map((category) => (
-                                        <SelectItem key={category._id} value={category._id}>
-                                            <div className="flex items-center gap-2">
-                                                <span>{category.icon}</span>
-                                                <span>{category.name}</span>
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="dueDate" className="text-sm font-medium text-foreground/80">{t("dueDate")} ({tCommon("optional")})</Label>
+                            <Input
+                                id="dueDate"
+                                type="date"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
+                            />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="date" className="text-sm font-medium text-foreground/80">{t("date")}</Label>
+                            <Label htmlFor="description" className="text-sm font-medium text-foreground/80">{t("description")} ({tCommon("optional")})</Label>
                             <Input
-                                id="date"
-                                type="date"
-                                value={date.toISOString().split('T')[0]}
-                                onChange={(e) => setDate(new Date(e.target.value))}
+                                id="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder={t("descriptionPlaceholder")}
                                 className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
                             />
                         </div>

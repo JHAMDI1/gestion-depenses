@@ -4,11 +4,12 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { UserProfile, useUser, useClerk, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { useUser, useClerk, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { CategoryManager } from "@/components/settings/CategoryManager";
 import { ThemeToggle } from "@/components/settings/ThemeToggle";
 import { DataSeeder } from "@/components/settings/DataSeeder";
-import { Moon, Sun, LogOut, User, Target, Wallet } from "lucide-react";
+import { DataExportButton } from "@/components/settings/DataExportButton";
+import { Moon, Sun, LogOut, User, Target, Wallet, Database } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
@@ -124,9 +125,23 @@ function SettingsContent() {
                 </Card>
 
                 {/* Data Section */}
-                <div className="h-full">
-                    <DataSeeder />
-                </div>
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <div className="p-2 rounded-lg bg-green-500/10 text-green-500">
+                                <Database className="h-5 w-5" />
+                            </div>
+                            {t("data")}
+                        </CardTitle>
+                        <CardDescription>
+                            {t("dataDesc")}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <DataExportButton />
+                        <DataSeeder />
+                    </CardContent>
+                </Card>
 
                 {/* Categories Section */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm md:col-span-2">

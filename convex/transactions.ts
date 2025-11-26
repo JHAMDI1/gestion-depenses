@@ -120,6 +120,7 @@ export const createTransaction = mutation({
         categoryId: v.id("categories"),
         name: v.string(),
         amount: v.number(),
+        type: v.optional(v.string()), // "EXPENSE" ou "INCOME"
         date: v.number(),
     },
     handler: async (ctx, args) => {
@@ -137,6 +138,7 @@ export const createTransaction = mutation({
             categoryId: args.categoryId,
             name: args.name,
             amount: args.amount,
+            type: args.type || "EXPENSE", // Par défaut EXPENSE pour compatibilité
             date: args.date,
             createdAt: Date.now(),
         });
@@ -150,6 +152,7 @@ export const updateTransaction = mutation({
         categoryId: v.id("categories"),
         name: v.string(),
         amount: v.number(),
+        type: v.optional(v.string()),
         date: v.number(),
     },
     handler: async (ctx, args) => {
@@ -171,6 +174,7 @@ export const updateTransaction = mutation({
             categoryId: args.categoryId,
             name: args.name,
             amount: args.amount,
+            type: args.type || "EXPENSE",
             date: args.date,
         });
     },
