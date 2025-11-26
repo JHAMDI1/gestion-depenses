@@ -10,6 +10,7 @@
 
 import type * as budgets from "../budgets.js";
 import type * as categories from "../categories.js";
+import type * as debts from "../debts.js";
 import type * as goals from "../goals.js";
 import type * as http from "../http.js";
 import type * as recurrings from "../recurrings.js";
@@ -25,6 +26,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   budgets: typeof budgets;
   categories: typeof categories;
+  debts: typeof debts;
   goals: typeof goals;
   http: typeof http;
   recurrings: typeof recurrings;

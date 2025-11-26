@@ -14,7 +14,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>{children}</body>
     </html>
   );
 }

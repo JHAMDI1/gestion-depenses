@@ -18,6 +18,7 @@
         "uncategorized": "بدون فئة",
         "type": "النوع",
         "expense": "مصروف",
+        "income": "دخل",
         "optional": "اختياري",
         "signIn": "تسجيل الدخول"
     },
@@ -28,6 +29,7 @@
         "budgets": "الميزانيات",
         "goals": "الأهداف",
         "recurrings": "النفقات المتكررة",
+        "debts": "الديون",
         "settings": "الإعدادات",
         "logout": "تسجيل الخروج"
     },
@@ -54,6 +56,7 @@
         "date": "التاريخ",
         "category": "الفئة",
         "description": "الوصف",
+        "descriptionPlaceholder": "مثال: مشتريات الشهر",
         "selectCategory": "اختر فئة",
         "addTransactionDesc": "أضف معاملة جديدة مع الفئة والمبلغ والتاريخ."
     },
@@ -168,6 +171,27 @@
         "name": "الاسم",
         "icon": "الرمز",
         "color": "اللون"
+    },
+    "debts": {
+        "title": "الديون",
+        "subtitle": "إدارة قروضك واستدانتك",
+        "addDebt": "دين جديد",
+        "addDebtDesc": "أضف دينًا أو ذمة مع مبلغه وتاريخ الاستحقاق.",
+        "personName": "اسم الشخص",
+        "personNamePlaceholder": "مثال: أحمد محمد",
+        "amount": "المبلغ",
+        "dueDate": "تاريخ الاستحقاق",
+        "description": "الوصف",
+        "descriptionPlaceholder": "مثال: قرض لشراء سيارة",
+        "borrowed": "استدنت",
+        "lent": "أقرضت",
+        "all": "الكل",
+        "totalToReceive": "للاستلام",
+        "totalToPay": "للسداد",
+        "active": "نشطة",
+        "paid": "مدفوع",
+        "overdue": "متأخر",
+        "noDebts": "لا توجد ديون"
     },
     "landing": {
         "tagline": "إدارة المالية الشخصية",

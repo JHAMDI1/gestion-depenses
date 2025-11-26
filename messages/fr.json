@@ -18,6 +18,7 @@
         "uncategorized": "Sans catégorie",
         "type": "Type",
         "expense": "Dépense",
+        "income": "Revenu",
         "optional": "Optionnel",
         "signIn": "Se connecter"
     },
@@ -28,6 +29,7 @@
         "budgets": "Budgets",
         "goals": "Objectifs",
         "recurrings": "Récurrentes",
+        "debts": "Dettes",
         "settings": "Paramètres",
         "logout": "Déconnexion"
     },
@@ -54,6 +56,7 @@
         "date": "Date",
         "category": "Catégorie",
         "description": "Description",
+        "descriptionPlaceholder": "Ex: Courses du mois",
         "selectCategory": "Sélectionner une catégorie",
         "addTransactionDesc": "Ajoutez une nouvelle transaction avec sa catégorie, son montant et sa date."
     },
@@ -168,6 +171,27 @@
         "name": "Nom",
         "icon": "Icône",
         "color": "Couleur"
+    },
+    "debts": {
+        "title": "Dettes",
+        "subtitle": "Gérez vos prêts et emprunts",
+        "addDebt": "Nouvelle Dette",
+        "addDebtDesc": "Ajoutez une dette ou une créance avec son montant et sa date d'échéance.",
+        "personName": "Nom de la personne",
+        "personNamePlaceholder": "Ex: Jean Dupont",
+        "amount": "Montant",
+        "dueDate": "Date d'échéance",
+        "description": "Description",
+        "descriptionPlaceholder": "Ex: Prêt pour achat voiture",
+        "borrowed": "J'ai emprunté",
+        "lent": "J'ai prêté",
+        "all": "Toutes",
+        "totalToReceive": "À recevoir",
+        "totalToPay": "À rembourser",
+        "active": "actives",
+        "paid": "Payé",
+        "overdue": "En retard",
+        "noDebts": "Aucune dette trouvée"
     },
     "landing": {
         "tagline": "Gestion des Finances Personnelles",

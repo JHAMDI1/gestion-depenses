@@ -16,6 +16,7 @@ export default defineSchema({
         categoryId: v.id("categories"),
         name: v.string(),
         amount: v.number(),    // Montant en TND
+        type: v.optional(v.string()),      // "EXPENSE" ou "INCOME" (optionnel pour compatibilité avec données existantes)
         date: v.number(),      // Timestamp
         createdAt: v.number(), // Timestamp de création
     })
@@ -55,4 +56,16 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_category", ["categoryId"]),
+
+    // Dettes et créances
+    debts: defineTable({
+        userId: v.string(),
+        personName: v.string(),    // Nom de la personne
+        amount: v.number(),        // Montant total en TND
+        type: v.string(),          // "LENT" (j'ai prêté) ou "BORROWED" (j'ai emprunté)
+        dueDate: v.optional(v.number()), // Date d'échéance (timestamp optionnel)
+        isPaid: v.boolean(),       // Statut de remboursement
+        description: v.optional(v.string()), // Description optionnelle
+        createdAt: v.number(),     // Timestamp de création
+    }).index("by_user", ["userId"]),
 });

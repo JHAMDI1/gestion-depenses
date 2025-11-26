@@ -36,10 +36,12 @@ export function DataSeeder() {
     };
 
     return (
-        <Card>
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm h-full">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
+                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                        <Database className="h-5 w-5" />
+                    </div>
                     {t("data")}
                 </CardTitle>
                 <CardDescription>
@@ -47,10 +49,10 @@ export function DataSeeder() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-background/50">
                     <div className="space-y-0.5">
                         <div className="font-medium">{t("defaultCategories")}</div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                             {t("defaultCategoriesDesc")}
                         </p>
                     </div>
@@ -58,6 +60,7 @@ export function DataSeeder() {
                         variant="outline"
                         onClick={handleSeed}
                         disabled={isLoading}
+                        className="hover:bg-accent/50"
                     >
                         {isLoading ? (
                             <RefreshCw className="me-2 h-4 w-4 animate-spin" />
