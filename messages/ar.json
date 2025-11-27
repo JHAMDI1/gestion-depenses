@@ -136,10 +136,24 @@
         "selectCategory": "اختر فئة",
         "recurringUpdated": "تم تحديث التكرار",
         "recurringCreated": "تم إنشاء التكرار",
-        "newRecurringDesc": "أضف نفقة متكررة مع فئتها ومبلغها ويوم الشهر.",
+        "newRecurringDesc": "أضف نفقة/دخل متكرر(ة) مع فئتها ومبلغها وتكرارها.",
         "name": "الاسم",
         "category": "الفئة",
-        "amount": "المبلغ"
+        "amount": "المبلغ",
+        "frequency": "التكرار",
+        "frequencies": {
+            "DAILY": "يومي",
+            "WEEKLY": "أسبوعي",
+            "BIWEEKLY": "كل أسبوعين",
+            "MONTHLY": "شهري",
+            "BIMONTHLY": "كل شهرين",
+            "QUARTERLY": "ربع سنوي",
+            "SEMIANNUAL": "نصف سنوي",
+            "ANNUAL": "سنوي",
+            "BIANNUAL": "كل سنتين"
+        },
+        "dayOfWeek": "يوم الأسبوع",
+        "editRecurring": "تعديل التكرار"
     },
     "settings": {
         "title": "الإعدادات",

@@ -26,13 +26,17 @@ export const getRecurrings = query({
     },
 });
 
-// Mutation: Créer une nouvelle dépense récurrente
+// Mutation: Créer une nouvelle dépense/revenu récurrent(e)
 export const createRecurring = mutation({
     args: {
         categoryId: v.id("categories"),
         name: v.string(),
         amount: v.number(),
-        dayOfMonth: v.number(), // 1-31
+        type: v.optional(v.string()),      // "EXPENSE" ou "INCOME"
+        frequency: v.optional(v.string()), // "DAILY", "WEEKLY", "MONTHLY", etc.
+        dayOfWeek: v.optional(v.number()), // 0-6 pour hebdomadaire
+        dayOfMonth: v.optional(v.number()), // 1-31 pour mensuel
+        startDate: v.optional(v.number()), // Timestamp de début
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -44,8 +48,16 @@ export const createRecurring = mutation({
             throw new Error("Catégorie invalide");
         }
 
-        // Valider le jour du mois
-        if (args.dayOfMonth < 1 || args.dayOfMonth > 31) {
+        // Validation conditionnelle selon la fréquence
+        const frequency = args.frequency || "MONTHLY";
+
+        if ((frequency === "WEEKLY" || frequency === "BIWEEKLY") && args.dayOfWeek !== undefined) {
+            if (args.dayOfWeek < 0 || args.dayOfWeek > 6) {
+                throw new Error("Jour de la semaine invalide (doit être entre 0 et 6)");
+            }
+        }
+
+        if (args.dayOfMonth !== undefined && (args.dayOfMonth < 1 || args.dayOfMonth > 31)) {
             throw new Error("Jour du mois invalide (doit être entre 1 et 31)");
         }
 
@@ -54,20 +66,28 @@ export const createRecurring = mutation({
             categoryId: args.categoryId,
             name: args.name,
             amount: args.amount,
+            type: args.type || "EXPENSE",
+            frequency: frequency,
+            dayOfWeek: args.dayOfWeek,
             dayOfMonth: args.dayOfMonth,
+            startDate: args.startDate || Date.now(),
             isActive: true,
+            createdAt: Date.now(),
         });
     },
 });
 
-// Mutation: Mettre à jour une dépense récurrente
+// Mutation: Mettre à jour une dépense/revenu récurrent(e)
 export const updateRecurring = mutation({
     args: {
         id: v.id("recurrings"),
         categoryId: v.id("categories"),
         name: v.string(),
         amount: v.number(),
-        dayOfMonth: v.number(),
+        type: v.optional(v.string()),
+        frequency: v.optional(v.string()),
+        dayOfWeek: v.optional(v.number()),
+        dayOfMonth: v.optional(v.number()),
         isActive: v.boolean(),
     },
     handler: async (ctx, args) => {
@@ -85,15 +105,22 @@ export const updateRecurring = mutation({
             throw new Error("Catégorie invalide");
         }
 
-        // Valider le jour du mois
-        if (args.dayOfMonth < 1 || args.dayOfMonth > 31) {
-            throw new Error("Jour du mois invalide (doit être entre 1 et 31)");
+        // Validations
+        if (args.dayOfWeek !== undefined && (args.dayOfWeek < 0 || args.dayOfWeek > 6)) {
+            throw new Error("Jour de la semaine invalide");
+        }
+
+        if (args.dayOfMonth !== undefined && (args.dayOfMonth < 1 || args.dayOfMonth > 31)) {
+            throw new Error("Jour du mois invalide");
         }
 
         await ctx.db.patch(args.id, {
             categoryId: args.categoryId,
             name: args.name,
             amount: args.amount,
+            type: args.type || "EXPENSE",
+            frequency: args.frequency || "MONTHLY",
+            dayOfWeek: args.dayOfWeek,
             dayOfMonth: args.dayOfMonth,
             isActive: args.isActive,
         });

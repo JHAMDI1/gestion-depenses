@@ -136,10 +136,24 @@
         "selectCategory": "Sélectionner une catégorie",
         "recurringUpdated": "Récurrente mise à jour",
         "recurringCreated": "Récurrente créée",
-        "newRecurringDesc": "Ajoutez une dépense récurrente avec sa catégorie, son montant et le jour du mois.",
+        "newRecurringDesc": "Ajoutez une dépense/revenu récurrent(e) avec sa catégorie, son montant et sa fréquence.",
         "name": "Nom",
         "category": "Catégorie",
-        "amount": "Montant"
+        "amount": "Montant",
+        "frequency": "Fréquence",
+        "frequencies": {
+            "DAILY": "Quotidien",
+            "WEEKLY": "Hebdomadaire",
+            "BIWEEKLY": "Bi-hebdomadaire",
+            "MONTHLY": "Mensuel",
+            "BIMONTHLY": "Bimestriel",
+            "QUARTERLY": "Trimestriel",
+            "SEMIANNUAL": "Semestriel",
+            "ANNUAL": "Annuel",
+            "BIANNUAL": "Bisannuel"
+        },
+        "dayOfWeek": "Jour de la semaine",
+        "editRecurring": "Modifier la récurrence"
     },
     "settings": {
         "title": "Paramètres",
