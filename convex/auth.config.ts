@@ -1,7 +1,7 @@
 export default {
     providers: [
         {
-            domain: "https://" + process.env.CLERK_HOSTNAME,
+            domain: "https://hot-roughy-57.clerk.accounts.dev",
             applicationID: "convex",
         },
     ],

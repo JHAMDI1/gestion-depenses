@@ -45,20 +45,37 @@ Sous-étapes (si besoin):
 - [x] Mobile: Fallback couleur catégories (tokens) dans listes
 
 ## 3) Fonctionnalités V1 (métier)
+- [x] **Transactions – Type Revenu/Dépense**
+  - [x] Ajout champ `type` au schéma (optionnel pour compatibilité)
+  - [x] Sélecteur Type dans AddTransactionDialog (EXPENSE/INCOME)
+  - [x] Mutations mises à jour avec valeur par défaut EXPENSE
+- [x] **Dettes – Gestion complète**
+  - [x] Table `debts` dans le schéma
+  - [x] API CRUD complète (create, update, delete, togglePaid)
+  - [x] Page `/debts` avec filtres (Tout/Emprunté/Prêté)
+  [x] Dialog de création/édition de dette
+  - [x] Navigation mise à jour (icône Handshake)
+- [x] **Export de données**
+  - [x] Composant DataExportButton (export CSV)
+  - [x] Intégration dans Settings/Data
+  - [x] Export transactions avec colonnes: Date, Description, Catégorie, Montant, Type
+- [x] **Traductions complètes**
+  - [x] Français: toutes les clés (debts, income, export)
+  - [x] Arabe: toutes les traductions ajoutées
 - [ ] Transactions – Édition
   - [ ] Activer bouton Edit et dialog pré-rempli
-  - [ ] Mutation `transactions.updateTransaction`
+  - [x] Mutation `transactions.updateTransaction` (existe déjà)
   - [ ] Tests UI (edit, cancel, save, validation)
 - [ ] Budgets – Alertes réelles
   - [ ] Calcul dépenses mensuelles par catégorie vs `monthlyLimit`
-  - [ ] Afficher compteur d’alertes + liste détaillée (Dashboard)
+  - [ ] Afficher compteur d'alertes + liste détaillée (Dashboard)
   - [ ] Toast/notice contextualisée
 - [ ] Récurrents – Engine (planificateur Convex)
   - [ ] Tâche planifiée (mensuelle) qui crée les transactions à la date choisie
   - [ ] Journalisation des créations, idempotence
-- [ ] Stats – Agrégations backend Convex (perf)
-  - [ ] Endpoints agrégés (répartition par catégorie, séries mensuelles)
-  - [ ] Remplacement du calcul côté client
+- [x] Stats – Agrégations backend Convex (perf)
+  - [x] Endpoints agrégés (répartition par catégorie, séries mensuelles)
+  - [x] Remplacement du calcul côté client
 - [ ] Goals – UX épargne
   - [ ] Remplacer `prompt` par dialog structuré (montant, validations)
 
@@ -81,10 +98,11 @@ Variables supplémentaires si activé:
 - [ ] `OPENAI_API_KEY` (ou provider équivalent)
 
 ## 6) Documentation & Opérations
-- [ ] Mettre à jour README (tokens thème, SEO, LLM)
-- [ ] Mettre à jour walkthrough (Déploiement prod, QA prod)
-- [ ] Ajouter guide d’import/export CSV (si prévu)
+- [ ] Mettre à jour README (tokens thème, SEO, LLM, nouvelles features)
+- [x] Mettre à jour walkthrough (Design modernization)
+- [x] Guide d'export CSV (implémenté dans Settings)
 - [ ] Changelog V1
+- [x] Documentation des nouvelles fonctionnalités (Dettes, Revenus/Dépenses)
 
 ---
 

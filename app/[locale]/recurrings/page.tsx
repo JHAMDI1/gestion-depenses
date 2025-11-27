@@ -42,14 +42,23 @@ function RecurringsContent() {
     const toggleRecurring = useMutation(api.recurrings.toggleRecurring);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [filter, setFilter] = useState<"ALL" | "INCOME" | "EXPENSE">("ALL");
     const [recurringToEdit, setRecurringToEdit] = useState<{
         _id: Id<"recurrings">;
         name: string;
         amount: number;
         categoryId: Id<"categories">;
-        dayOfMonth: number;
+        type?: string;
+        frequency?: string;
+        dayOfWeek?: number;
+        dayOfMonth?: number;
         isActive: boolean;
     } | null>(null);
+
+    const filteredRecurrings = recurrings?.filter((recurring) => {
+        if (filter === "ALL") return true;
+        return (recurring.type || "EXPENSE") === filter;
+    });
 
     const handleDelete = async (id: Id<"recurrings">) => {
         if (confirm(tCommon("confirmDelete"))) {
@@ -77,6 +86,9 @@ function RecurringsContent() {
             name: recurring.name,
             amount: recurring.amount,
             categoryId: recurring.categoryId,
+            type: recurring.type,
+            frequency: recurring.frequency,
+            dayOfWeek: recurring.dayOfWeek,
             dayOfMonth: recurring.dayOfMonth,
             isActive: recurring.isActive,
         });
@@ -105,8 +117,21 @@ function RecurringsContent() {
                     </Button>
                 </div>
 
+                {/* Filters */}
+                <div className="flex gap-2">
+                    <Button variant={filter === "ALL" ? "default" : "outline"} onClick={() => setFilter("ALL")}>
+                        {t("all")}
+                    </Button>
+                    <Button variant={filter === "INCOME" ? "default" : "outline"} onClick={() => setFilter("INCOME")}>
+                        {tCommon("income")}
+                    </Button>
+                    <Button variant={filter === "EXPENSE" ? "default" : "outline"} onClick={() => setFilter("EXPENSE")}>
+                        {tCommon("expense")}
+                    </Button>
+                </div>
+
                 {/* Recurrings List */}
-                {!recurrings || recurrings.length === 0 ? (
+                {!filteredRecurrings || filteredRecurrings.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center bg-card rounded-lg border border-border">
                         <div className="rounded-full bg-muted p-4 mb-4">
                             <Repeat className="h-8 w-8 text-muted-foreground" />
@@ -122,66 +147,90 @@ function RecurringsContent() {
                     </div>
                 ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {recurrings.map((recurring) => (
-                            <Card key={recurring._id} className={!recurring.isActive ? "opacity-60" : ""}>
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <div className="flex items-center gap-2">
-                                        <span
-                                            className="flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ease-out"
-                                            style={{
-                                                backgroundColor: recurring.category?.color
-                                                    ? `${recurring.category.color}20`
-                                                    : 'var(--color-muted)',
-                                            }}
-                                        >
-                                            {recurring.category?.icon}
-                                        </span>
-                                        <CardTitle className="text-base font-medium">
-                                            {recurring.name}
-                                        </CardTitle>
-                                    </div>
-                                    <Switch
-                                        checked={recurring.isActive}
-                                        onCheckedChange={(checked) => handleToggle(recurring._id, checked)}
-                                    />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-end">
-                                            <div>
-                                                <p className="text-2xl font-bold">
-                                                    {format.number(recurring.amount, { style: 'currency', currency: 'TND' })}
-                                                </p>
-                                                <div className="flex items-center text-sm text-muted-foreground mt-1">
-                                                    <CalendarClock className="me-1 h-3 w-3" />
-                                                    {t("dayOfMonth", { day: recurring.dayOfMonth })}
+                        {filteredRecurrings.map((recurring) => {
+                            const recurringType = recurring.type || "EXPENSE";
+                            const frequency = recurring.frequency || "MONTHLY";
+                            const dayInfo = frequency === "WEEKLY" || frequency === "BIWEEKLY"
+                                ? `${t("dayOfWeek")}: ${recurring.dayOfWeek !== undefined ? ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"][recurring.dayOfWeek] : "-"}`
+                                : `${t("dayOfMonth", { day: recurring.dayOfMonth || 1 })}`;
+
+                            return (
+                                <Card key={recurring._id} className={!recurring.isActive ? "opacity-60" : ""}>
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <span
+                                                className="flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ease-out"
+                                                style={{
+                                                    backgroundColor: recurring.category?.color
+                                                        ? `${recurring.category.color}20`
+                                                        : 'var(--color-muted)',
+                                                }}
+                                            >
+                                                {recurring.category?.icon}
+                                            </span>
+                                            <CardTitle className="text-base font-medium">
+                                                {recurring.name}
+                                            </CardTitle>
+                                        </div>
+                                        <Switch
+                                            checked={recurring.isActive}
+                                            onCheckedChange={(checked) => handleToggle(recurring._id, checked)}
+                                        />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-4">
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="text-2xl font-bold">
+                                                            {format.number(recurring.amount, { style: 'currency', currency: 'TND' })}
+                                                        </p>
+                                                        <span
+                                                            className={`text-xs px-2 py-1 rounded-full ${recurringType === "INCOME"
+                                                                    ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                                                    : "bg-red-500/10 text-red-600 dark:text-red-400"
+                                                                }`}
+                                                        >
+                                                            {recurringType === "INCOME" ? tCommon("income") : tCommon("expense")}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-sm text-muted-foreground space-y-1">
+                                                        <div className="flex items-center">
+                                                            <Repeat className="me-1 h-3 w-3" />
+                                                            {t(`frequencies.${frequency}`)}
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <CalendarClock className="me-1 h-3 w-3" />
+                                                            {dayInfo}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex justify-end gap-2 pt-2 border-t border-border">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleEdit(recurring)}
-                                            >
-                                                <Edit className="me-2 h-3 w-3" />
-                                                {tCommon("edit")}
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                onClick={() => handleDelete(recurring._id)}
-                                            >
-                                                <Trash2 className="me-2 h-3 w-3" />
-                                                {tCommon("delete")}
-                                            </Button>
+                                            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleEdit(recurring)}
+                                                >
+                                                    <Edit className="me-2 h-3 w-3" />
+                                                    {tCommon("edit")}
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                    onClick={() => handleDelete(recurring._id)}
+                                                >
+                                                    <Trash2 className="me-2 h-3 w-3" />
+                                                    {tCommon("delete")}
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                    </CardContent>
+                                </Card>
+                            )
+                        })}
                     </div>
                 )}
             </div>

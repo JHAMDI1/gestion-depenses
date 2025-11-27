@@ -45,16 +45,23 @@ export default defineSchema({
         createdAt: v.number(),
     }).index("by_user", ["userId"]),
 
-    // Dépenses récurrentes
+    // Dépenses/Revenus récurrents (abonnements, salaires, etc.)
     recurrings: defineTable({
         userId: v.string(),
         categoryId: v.id("categories"),
         name: v.string(),
-        amount: v.number(),       // Montant en TND
-        dayOfMonth: v.number(),   // Jour du mois (1-31)
-        isActive: v.boolean(),    // Actif ou non
+        amount: v.number(),
+        type: v.optional(v.string()),           // "EXPENSE" ou "INCOME" (optionnel pour compatibilité)
+        frequency: v.optional(v.string()),      // "DAILY", "WEEKLY", "BIWEEKLY", "MONTHLY", "BIMONTHLY", "QUARTERLY", "SEMIANNUAL", "ANNUAL", "BIANNUAL"
+        dayOfWeek: v.optional(v.number()),      // 0-6 pour hebdomadaire/bi-hebdomadaire
+        dayOfMonth: v.optional(v.number()),     // 1-31 pour mensuel et plus (devient optionnel)
+        startDate: v.optional(v.number()),      // Date de début (timestamp)
+        isActive: v.boolean(),
+        createdAt: v.optional(v.number()),
+        lastGenerated: v.optional(v.number()),  // Dernière génération automatique (timestamp)
     })
         .index("by_user", ["userId"])
+        .index("by_user_active", ["userId", "isActive"])
         .index("by_category", ["categoryId"]),
 
     // Dettes et créances
