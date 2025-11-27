@@ -11,6 +11,7 @@ import { AddTransactionDialog } from "@/components/transactions/AddTransactionDi
 import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { StatsCards } from "@/components/dashboard/StatsCards";
+import { BalanceCard } from "@/components/balance/BalanceCard";
 
 export default function DashboardPage() {
     const tCommon = useTranslations("common");
@@ -40,6 +41,7 @@ function DashboardContent() {
     const monthlyTotal = useQuery(api.transactions.getMonthlyTotal, {});
     const recentTransactions = useQuery(api.transactions.getRecentTransactions, {});
     const categories = useQuery(api.categories.getCategories, {});
+    const budgets = useQuery(api.budgets.getBudgets, {});
     const seedCategories = useMutation(api.categories.seedDefaultCategories);
 
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -66,7 +68,9 @@ function DashboardContent() {
                     </Button>
                 </div>
 
-                <StatsCards monthlyTotal={monthlyTotal} />
+                <BalanceCard />
+
+                <StatsCards monthlyTotal={monthlyTotal} budgets={budgets} />
 
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-7">
                     <Card className="col-span-4 lg:col-span-4 border-none shadow-none bg-transparent">

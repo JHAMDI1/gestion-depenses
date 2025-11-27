@@ -7,8 +7,10 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Edit, Trash2, Target, Trophy } from "lucide-react";
+import { Plus, Edit, Trash2, Target, Trophy, Minus } from "lucide-react";
 import { GoalDialog } from "@/components/goals/GoalDialog";
+import { AddSavingsDialog } from "@/components/goals/AddSavingsDialog";
+import { WithdrawSavingsDialog } from "@/components/goals/WithdrawSavingsDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { useTranslations, useFormatter } from "next-intl";
@@ -42,6 +44,10 @@ function GoalsContent() {
     const updateGoalAmount = useMutation(api.goals.updateSavedAmount);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isAddSavingsOpen, setIsAddSavingsOpen] = useState(false);
+    const [isWithdrawSavingsOpen, setIsWithdrawSavingsOpen] = useState(false);
+    const [selectedGoalId, setSelectedGoalId] = useState<Id<"goals"> | null>(null);
+    const [selectedGoalSaved, setSelectedGoalSaved] = useState(0);
     const [goalToEdit, setGoalToEdit] = useState<{
         _id: Id<"goals">;
         name: string;
@@ -77,19 +83,15 @@ function GoalsContent() {
         setIsDialogOpen(true);
     };
 
-    const handleAddSavings = async (id: Id<"goals">, currentAmount: number) => {
-        const amountStr = prompt(t("addSavingsPrompt"));
-        if (amountStr) {
-            const amount = parseFloat(amountStr);
-            if (!isNaN(amount)) {
-                try {
-                    await updateGoalAmount({ id, savedAmount: currentAmount + amount });
-                    toast.success(t("savingsUpdated"));
-                } catch (error) {
-                    toast.error(tCommon("error"));
-                }
-            }
-        }
+    const handleAddSavings = (id: Id<"goals">) => {
+        setSelectedGoalId(id);
+        setIsAddSavingsOpen(true);
+    };
+
+    const handleWithdrawSavings = (id: Id<"goals">, savedAmount: number) => {
+        setSelectedGoalId(id);
+        setSelectedGoalSaved(savedAmount);
+        setIsWithdrawSavingsOpen(true);
     };
 
     return (
@@ -196,14 +198,26 @@ function GoalsContent() {
                                             )}
 
                                             {!isCompleted && (
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full mt-2"
-                                                    onClick={() => handleAddSavings(goal._id, goal.savedAmount)}
-                                                >
-                                                    <Plus className="me-2 h-4 w-4" />
-                                                    {t("addSavings")}
-                                                </Button>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        className="flex-1 mt-2"
+                                                        onClick={() => handleAddSavings(goal._id)}
+                                                    >
+                                                        <Plus className="me-2 h-4 w-4" />
+                                                        {t("addSavings")}
+                                                    </Button>
+                                                    {goal.savedAmount > 0 && (
+                                                        <Button
+                                                            variant="outline"
+                                                            className="flex-1 mt-2"
+                                                            onClick={() => handleWithdrawSavings(goal._id, goal.savedAmount)}
+                                                        >
+                                                            <Minus className="me-2 h-4 w-4" />
+                                                            Retirer
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     </CardContent>
@@ -218,6 +232,19 @@ function GoalsContent() {
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 goalToEdit={goalToEdit}
+            />
+
+            <AddSavingsDialog
+                open={isAddSavingsOpen}
+                onOpenChange={setIsAddSavingsOpen}
+                goalId={selectedGoalId}
+            />
+
+            <WithdrawSavingsDialog
+                open={isWithdrawSavingsOpen}
+                onOpenChange={setIsWithdrawSavingsOpen}
+                goalId={selectedGoalId}
+                currentSaved={selectedGoalSaved}
             />
         </>
     );

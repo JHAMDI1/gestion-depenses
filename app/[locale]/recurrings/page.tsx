@@ -7,7 +7,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Repeat, CalendarClock } from "lucide-react";
+import { Plus, Edit, Trash2, Repeat, CalendarClock, Zap } from "lucide-react";
 import { RecurringDialog } from "@/components/recurrings/RecurringDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
@@ -40,6 +40,7 @@ function RecurringsContent() {
     const recurrings = useQuery(api.recurrings.getRecurrings);
     const deleteRecurring = useMutation(api.recurrings.deleteRecurring);
     const toggleRecurring = useMutation(api.recurrings.toggleRecurring);
+    const generateTransaction = useMutation(api.recurring_generator.generateTransactionFromRecurring);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [filter, setFilter] = useState<"ALL" | "INCOME" | "EXPENSE">("ALL");
@@ -98,6 +99,15 @@ function RecurringsContent() {
     const handleAdd = () => {
         setRecurringToEdit(null);
         setIsDialogOpen(true);
+    };
+
+    const handleGenerate = async (id: Id<"recurrings">) => {
+        try {
+            await generateTransaction({ recurringId: id });
+            toast.success("Transaction générée avec succès!");
+        } catch (error: any) {
+            toast.error(error.message || "Erreur lors de la génération");
+        }
     };
 
     return (
@@ -187,8 +197,8 @@ function RecurringsContent() {
                                                         </p>
                                                         <span
                                                             className={`text-xs px-2 py-1 rounded-full ${recurringType === "INCOME"
-                                                                    ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                                                                    : "bg-red-500/10 text-red-600 dark:text-red-400"
+                                                                ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                                                : "bg-red-500/10 text-red-600 dark:text-red-400"
                                                                 }`}
                                                         >
                                                             {recurringType === "INCOME" ? tCommon("income") : tCommon("expense")}
@@ -208,6 +218,15 @@ function RecurringsContent() {
                                             </div>
 
                                             <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleGenerate(recurring._id)}
+                                                    className="gap-1"
+                                                >
+                                                    <Zap className="h-3 w-3" />
+                                                    Générer
+                                                </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"

@@ -6,11 +6,17 @@ import { useTranslations, useFormatter } from "next-intl";
 
 interface StatsCardsProps {
     monthlyTotal: { total: number; count: number } | undefined;
+    budgets: any[] | undefined;
 }
 
-export function StatsCards({ monthlyTotal }: StatsCardsProps) {
+export function StatsCards({ monthlyTotal, budgets }: StatsCardsProps) {
     const t = useTranslations("dashboard");
     const format = useFormatter();
+
+    const totalBudgetLimit = budgets?.reduce((sum, b) => sum + b.monthlyLimit, 0) || 0;
+    const totalRemaining = budgets?.reduce((sum, b) => sum + b.remaining, 0) || 0;
+    const budgetsExceeded = budgets?.filter(b => b.percentage > 100).length || 0;
+
 
     return (
         <div className="grid gap-4 md:grid-cols-3">
@@ -47,9 +53,15 @@ export function StatsCards({ monthlyTotal }: StatsCardsProps) {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-[32px] leading-tight font-bold">-</div>
+                    <div className="text-[32px] leading-tight font-bold">
+                        {totalBudgetLimit > 0
+                            ? format.number(totalRemaining, { style: 'currency', currency: 'TND' })
+                            : "-"}
+                    </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                        {t("remainingBudget")}
+                        {totalBudgetLimit > 0
+                            ? `sur ${format.number(totalBudgetLimit, { style: 'currency', currency: 'TND' })}`
+                            : t("remainingBudget")}
                     </p>
                 </CardContent>
             </Card>
@@ -64,9 +76,9 @@ export function StatsCards({ monthlyTotal }: StatsCardsProps) {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-[32px] leading-tight font-bold">0</div>
+                    <div className="text-[32px] leading-tight font-bold">{budgetsExceeded}</div>
                     <p className="text-xs text-muted-foreground mt-1">
-                        {t("noBudgetExceeded")}
+                        {budgetsExceeded === 0 ? t("noBudgetExceeded") : `${budgetsExceeded} budget(s) dépassé(s)`}
                     </p>
                 </CardContent>
             </Card>

@@ -60,6 +60,7 @@ function StatsContent() {
     type ExpenseAggRow = { name: string; amount: number; color?: string };
 
     const [timeRange, setTimeRange] = useState("6");
+    const [filter, setFilter] = useState<"EXPENSE" | "INCOME" | "ALL">("EXPENSE");
     const months = parseInt(timeRange);
     const now = new Date();
     const rangeStart = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1).getTime();
@@ -68,11 +69,14 @@ function StatsContent() {
     // Server-side aggregations via Convex
     const monthlySeries = useQuery(api.stats.getMonthlySeries, { months });
     const expensesAgg = useQuery(api.stats.getExpensesByCategoryRange, { start: rangeStart, end: rangeEnd });
+    const incomeSeries = useQuery(api.stats.getIncomesMonthlySeries, { months });
+    const incomesAgg = useQuery(api.stats.getIncomesByCategoryRange, { start: rangeStart, end: rangeEnd });
+    const comparisonSeries = useQuery(api.stats.getComparisonMonthlySeries, { months });
 
     // Keep raw transactions only for CSV export convenience
     const transactions = useQuery(api.transactions.getTransactions, { limit: 1000 });
 
-    if (!monthlySeries || !expensesAgg) {
+    if (!monthlySeries || !expensesAgg || !incomeSeries || !incomesAgg || !comparisonSeries) {
         return (
             <div className="flex h-[50vh] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -84,6 +88,10 @@ function StatsContent() {
         .map((row: ExpenseAggRow) => ({ name: row.name, value: row.amount, color: row.color ?? 'var(--color-primary)' }))
         .filter((item: { value: number }) => item.value > 0);
 
+    const incomesByCategory = incomesAgg
+        .map((row: ExpenseAggRow) => ({ name: row.name, value: row.amount, color: row.color ?? '#10b981' }))
+        .filter((item: { value: number }) => item.value > 0);
+
     const monthLocale = locale === 'ar' ? ar : fr;
     const lastXMonths = monthlySeries
         .map((m: MonthlyPoint) => {
@@ -93,7 +101,12 @@ function StatsContent() {
         });
 
     const totalExpenses = expensesByCategory.reduce((sum: number, r: { value: number }) => sum + r.value, 0);
+    const totalIncomes = incomesByCategory.reduce((sum: number, r: { value: number }) => sum + r.value, 0);
     const averageMonthly = monthlySeries.reduce((sum: number, m: MonthlyPoint) => sum + m.amount, 0) / (months || 1);
+
+    // Données à afficher selon le filtre
+    const displayData = filter === "INCOME" ? incomesByCategory : expensesByCategory;
+    const displayTotal = filter === "INCOME" ? totalIncomes : totalExpenses;
 
     return (
         <div className="space-y-8">
@@ -104,7 +117,32 @@ function StatsContent() {
                         {t("subtitle")}
                     </p>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                    <div className="flex gap-2">
+                        <Button
+                            size="sm"
+                            variant={filter === "EXPENSE" ? "default" : "outline"}
+                            onClick={() => setFilter("EXPENSE")}
+                            className={filter === "EXPENSE" ? "bg-red-600 hover:bg-red-700" : ""}
+                        >
+                            Dépenses
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant={filter === "INCOME" ? "default" : "outline"}
+                            onClick={() => setFilter("INCOME")}
+                            className={filter === "INCOME" ? "bg-green-600 hover:bg-green-700" : ""}
+                        >
+                            Revenus
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant={filter === "ALL" ? "default" : "outline"}
+                            onClick={() => setFilter("ALL")}
+                        >
+                            Comparaison
+                        </Button>
+                    </div>
                     {transactions && (
                         <ExportCSV data={transactions} filename={`masrouf_export_${new Date().toISOString().split('T')[0]}.csv`} />
                     )}
@@ -191,38 +229,69 @@ function StatsContent() {
 
                 <Card className="col-span-2 lg:col-span-1">
                     <CardHeader>
-                        <CardTitle>{t("categoryDistribution")}</CardTitle>
+                        <CardTitle>
+                            {filter === "INCOME" ? "Répartition des Revenus" : filter === "ALL" ? "Comparaison" : t("categoryDistribution")}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={expensesByCategory}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {expensesByCategory.map((entry: { color?: string }, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color || 'var(--color-primary)'} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
-                                        contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
-                                    />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            {filter === "ALL" ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={comparisonSeries}>
+                                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                        <XAxis
+                                            dataKey="month"
+                                            stroke="var(--color-muted-foreground)"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            stroke="var(--color-muted-foreground)"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickFormatter={(value) => `${value} TND`}
+                                        />
+                                        <Tooltip
+                                            formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
+                                            contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
+                                        />
+                                        <Legend />
+                                        <Bar dataKey="income" fill="#10b981" name="Revenus" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="expense" fill="#ef4444" name="Dépenses" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={displayData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                        >
+                                            {displayData.map((entry: { color?: string }, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color || 'var(--color-primary)'} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
+                                            contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
+                                        />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <TopCategoriesTable data={expensesByCategory} totalExpenses={totalExpenses} />
+            {filter !== "ALL" && <TopCategoriesTable data={displayData} totalExpenses={displayTotal} />}
         </div>
     );
 }

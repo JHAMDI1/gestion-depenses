@@ -64,6 +64,15 @@ export default defineSchema({
         .index("by_user_active", ["userId", "isActive"])
         .index("by_category", ["categoryId"]),
 
+    // Solde/Balance du compte
+    balance: defineTable({
+        userId: v.string(),
+        initialAmount: v.number(),     // Montant initial du compte en TND
+        currency: v.string(),          // "TND"
+        createdAt: v.number(),         // Timestamp de création
+        updatedAt: v.number(),         // Timestamp de dernière modification
+    }).index("by_user", ["userId"]),
+
     // Dettes et créances
     debts: defineTable({
         userId: v.string(),

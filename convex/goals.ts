@@ -66,6 +66,49 @@ export const updateSavedAmount = mutation({
     },
 });
 
+// Mutation: Ajouter de l'épargne à un objectif
+export const addSavings = mutation({
+    args: {
+        id: v.id("goals"),
+        amount: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Non authentifié");
+
+        const goal = await ctx.db.get(args.id);
+        if (!goal || goal.userId !== identity.subject) {
+            throw new Error("Objectif non trouvé");
+        }
+
+        await ctx.db.patch(args.id, {
+            savedAmount: goal.savedAmount + args.amount,
+        });
+    },
+});
+
+// Mutation: Retirer de l'épargne d'un objectif
+export const withdrawSavings = mutation({
+    args: {
+        id: v.id("goals"),
+        amount: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Non authentifié");
+
+        const goal = await ctx.db.get(args.id);
+        if (!goal || goal.userId !== identity.subject) {
+            throw new Error("Objectif non trouvé");
+        }
+
+        const newAmount = Math.max(0, goal.savedAmount - args.amount);
+        await ctx.db.patch(args.id, {
+            savedAmount: newAmount,
+        });
+    },
+});
+
 // Mutation: Mettre à jour un objectif complet
 export const updateGoal = mutation({
     args: {

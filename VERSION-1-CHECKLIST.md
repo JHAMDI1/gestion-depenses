@@ -62,25 +62,30 @@ Sous-étapes (si besoin):
 - [x] **Traductions complètes**
   - [x] Français: toutes les clés (debts, income, export)
   - [x] Arabe: toutes les traductions ajoutées
-- [ ] Transactions – Édition
-  - [ ] Activer bouton Edit et dialog pré-rempli
+- [x] Transactions – Édition
+  - [x] Activer bouton Edit et dialog pré-rempli
   - [x] Mutation `transactions.updateTransaction` (existe déjà)
-  - [ ] Tests UI (edit, cancel, save, validation)
-- [ ] Budgets – Alertes réelles
-  - [ ] Calcul dépenses mensuelles par catégorie vs `monthlyLimit`
-  - [ ] Afficher compteur d'alertes + liste détaillée (Dashboard)
-  - [ ] Toast/notice contextualisée
+  - [x] Tests UI (edit, cancel, save, validation)
+- [x] Budgets – Alertes réelles
+  - [x] Calcul dépenses mensuelles par catégorie vs `monthlyLimit`
+  - [x] Afficher compteur d'alertes + liste détaillée (Dashboard)
+  - [x] Stats cards mises à jour avec budget restant et alertes
 - [ ] Récurrents – Engine (planificateur Convex)
   - [ ] Tâche planifiée (mensuelle) qui crée les transactions à la date choisie
   - [ ] Journalisation des créations, idempotence
 - [x] Stats – Agrégations backend Convex (perf)
   - [x] Endpoints agrégés (répartition par catégorie, séries mensuelles)
+  - [x] Filtrage expenses uniquement (pas de revenus)
   - [x] Remplacement du calcul côté client
-- [ ] Goals – UX épargne
-  - [ ] Remplacer `prompt` par dialog structuré (montant, validations)
+- [x] Goals – UX épargne
+  - [x] Créé AddSavingsDialog et WithdrawSavingsDialog
+  - [x] Mutations addSavings et withdrawSavings dans Convex
+  - [x] Remplacé `prompt` par dialogs structurés avec validation
 
 ## 4) SEO/Perf/Qualité
-- [ ] Metadata locales (title/description par page)
+- [/] Metadata locales (title/description par page)
+  - [x] Créé lib/metadata.ts helper
+  - [ ] Ajouter metadata à toutes les pages
 - [ ] Open Graph/Twitter cards (images dynamiques si possible)
 - [ ] Lighthouse ≥ 90 (Perf/Best/A11y/SEO)
 - [ ] Tests e2e Playwright (FR/AR + auth smoke)
@@ -101,6 +106,7 @@ Variables supplémentaires si activé:
 - [ ] Mettre à jour README (tokens thème, SEO, LLM, nouvelles features)
 - [x] Mettre à jour walkthrough (Design modernization)
 - [x] Guide d'export CSV (implémenté dans Settings)
+- [x] Guide utilisateur complet (GUIDE_UTILISATEUR.md)
 - [ ] Changelog V1
 - [x] Documentation des nouvelles fonctionnalités (Dettes, Revenus/Dépenses)
 

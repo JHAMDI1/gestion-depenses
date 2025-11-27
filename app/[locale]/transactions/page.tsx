@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Search, Filter, Trash2, Edit } from "lucide-react";
 import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
+import { EditTransactionDialog } from "@/components/transactions/EditTransactionDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { useTranslations, useFormatter } from "next-intl";
@@ -58,8 +59,15 @@ function TransactionsContent() {
     const deleteTransaction = useMutation(api.transactions.deleteTransaction);
 
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [transactionToEdit, setTransactionToEdit] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
+
+    const handleEdit = (transaction: any) => {
+        setTransactionToEdit(transaction);
+        setIsEditDialogOpen(true);
+    };
 
     const handleDelete = async (id: Id<"transactions">) => {
         if (confirm(tCommon("confirmDelete"))) {
@@ -182,7 +190,12 @@ function TransactionsContent() {
                                                 </TableCell>
                                                 <TableCell className="text-end">
                                                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" disabled>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                            onClick={() => handleEdit(transaction)}
+                                                        >
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                         <Button
@@ -208,6 +221,12 @@ function TransactionsContent() {
             <AddTransactionDialog
                 open={isAddDialogOpen}
                 onOpenChange={setIsAddDialogOpen}
+            />
+
+            <EditTransactionDialog
+                open={isEditDialogOpen}
+                onOpenChange={setIsEditDialogOpen}
+                transaction={transactionToEdit}
             />
         </>
     );
