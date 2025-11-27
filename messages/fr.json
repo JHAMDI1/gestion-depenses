@@ -153,7 +153,8 @@
             "BIANNUAL": "Bisannuel"
         },
         "dayOfWeek": "Jour de la semaine",
-        "editRecurring": "Modifier la récurrence"
+        "editRecurring": "Modifier la récurrence",
+        "all": "Toutes"
     },
     "settings": {
         "title": "Paramètres",

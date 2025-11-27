@@ -109,8 +109,10 @@ export const getMonthlyTotal = query({
             )
             .collect();
 
-        const total = transactions.reduce((sum, t) => sum + t.amount, 0);
-        return { total, count: transactions.length };
+        // Filtrer uniquement les dépenses (ignorer les revenus)
+        const expenses = transactions.filter(t => !t.type || t.type === "EXPENSE");
+        const total = expenses.reduce((sum, t) => sum + t.amount, 0);
+        return { total, count: expenses.length };
     },
 });
 
