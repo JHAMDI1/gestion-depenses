@@ -283,7 +283,7 @@ export function CategoryManager() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200"
                                 onClick={() => handleEditClick(category)}
                             >
                                 <Edit className="h-4 w-4" />
@@ -291,7 +291,7 @@ export function CategoryManager() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                className="h-8 w-8 text-destructive/80 hover:text-destructive hover:bg-destructive/10 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200"
                                 onClick={() => handleDelete(category._id)}
                             >
                                 <Trash2 className="h-4 w-4" />

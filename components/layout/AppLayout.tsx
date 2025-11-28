@@ -108,28 +108,56 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
             </main>
 
-            {/* Mobile Bottom Navigation */}
+            {/* Mobile Bottom Navigation - Carousel Style */}
             <nav className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-border/50 bg-card/80 backdrop-blur-xl pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-                <div className="flex items-stretch justify-between gap-1 px-2 py-2">
-                    {navigation.map((item) => {
-                        const isActive = pathname === item.href;
-                        return (
-                            <Link
-                                key={`mobile-${item.href}`}
-                                href={item.href}
-                                aria-label={item.name}
+                <div className="relative">
+                    {/* Scroll Container */}
+                    <div
+                        className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth"
+                        style={{
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                        }}
+                    >
+                        {navigation.map((item) => {
+                            const isActive = pathname === item.href;
+                            return (
+                                <Link
+                                    key={`mobile-${item.href}`}
+                                    href={item.href}
+                                    aria-label={item.name}
+                                    className={cn(
+                                        "flex flex-col items-center justify-center gap-1.5 rounded-xl p-3 text-[11px] font-medium transition-all duration-200 ease-out snap-center shrink-0",
+                                        "w-[calc(33.333%-0.5rem)]", // 3 items visible
+                                        isActive
+                                            ? "text-primary bg-primary/10 shadow-sm"
+                                            : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground"
+                                    )}
+                                >
+                                    <item.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "-translate-y-0.5 scale-110")} />
+                                    <span className={cn("leading-none transition-all duration-200 text-center", isActive && "font-bold")}>{item.name}</span>
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Scroll Indicators */}
+                    <div className="flex justify-center gap-1 py-1">
+                        {[0, 1, 2].map((page) => (
+                            <div
+                                key={page}
                                 className={cn(
-                                    "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl p-2 text-[10px] font-medium transition-all duration-200 ease-out",
-                                    isActive
-                                        ? "text-primary bg-primary/10"
-                                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                    "h-1 rounded-full transition-all duration-300",
+                                    page === 0 ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
                                 )}
-                            >
-                                <item.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "-translate-y-0.5 scale-110")} />
-                                <span className={cn("leading-none transition-all duration-200", isActive && "font-bold")}>{item.name}</span>
-                            </Link>
-                        );
-                    })}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Swipe Hint (shown only on first load) */}
+                    <div className="absolute top-2 right-4 text-xs text-muted-foreground/60 animate-pulse pointer-events-none">
+                        ← Glissez →
+                    </div>
                 </div>
             </nav>
         </div>

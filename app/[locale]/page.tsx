@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Link } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { getTranslations } from 'next-intl/server';
+import PageTransition from "@/components/shared/PageTransition";
 
 export default async function HomePage() {
   const { userId } = await auth();
@@ -15,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20">
-      <div className="container mx-auto px-4 text-center">
+      <PageTransition className="container mx-auto px-4 text-center">
         <div className="mx-auto max-w-3xl space-y-8">
           {/* Logo/Titre */}
           <div className="space-y-4">
@@ -68,7 +69,7 @@ export default async function HomePage() {
             </Button>
           </div>
         </div>
-      </div>
+      </PageTransition>
     </div>
   );
 }

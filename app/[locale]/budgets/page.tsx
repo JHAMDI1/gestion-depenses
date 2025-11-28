@@ -7,6 +7,14 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, AlertTriangle } from "lucide-react";
 import { BudgetDialog } from "@/components/budgets/BudgetDialog";
 import { toast } from "sonner";
@@ -46,15 +54,21 @@ function BudgetsContent() {
         categoryId: Id<"categories">;
         monthlyLimit: number;
     } | null>(null);
+    const [budgetToDelete, setBudgetToDelete] = useState<Id<"budgets"> | null>(null);
 
-    const handleDelete = async (id: Id<"budgets">) => {
-        if (confirm(tCommon("confirmDelete"))) {
-            try {
-                await deleteBudget({ id });
-                toast.success(tCommon("delete") + " " + tCommon("success"));
-            } catch (error) {
-                toast.error(tCommon("error"));
-            }
+    const handleDelete = (id: Id<"budgets">) => {
+        setBudgetToDelete(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!budgetToDelete) return;
+        try {
+            await deleteBudget({ id: budgetToDelete });
+            toast.success(tCommon("delete") + " " + tCommon("success"));
+            setBudgetToDelete(null);
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error(tCommon("error"));
         }
     };
 
@@ -132,18 +146,26 @@ function BudgetsContent() {
                                         </div>
                                         <div className="flex gap-1">
                                             <Button
+                                                type="button"
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8"
-                                                onClick={() => handleEdit(budget)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEdit(budget);
+                                                }}
                                             >
                                                 <Edit className="h-4 w-4 text-muted-foreground" />
                                             </Button>
                                             <Button
+                                                type="button"
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 text-destructive hover:text-destructive"
-                                                onClick={() => handleDelete(budget._id)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(budget._id);
+                                                }}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -194,6 +216,19 @@ function BudgetsContent() {
                 onOpenChange={setIsDialogOpen}
                 budgetToEdit={budgetToEdit}
             />
+
+            <Dialog open={!!budgetToDelete} onOpenChange={(open) => !open && setBudgetToDelete(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{tCommon("confirmDelete")}</DialogTitle>
+                        <DialogDescription>{tCommon("deleteDescription")}</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setBudgetToDelete(null)}>{tCommon("cancel")}</Button>
+                        <Button variant="destructive" onClick={confirmDelete}>{tCommon("delete")}</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

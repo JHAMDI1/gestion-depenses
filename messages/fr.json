@@ -206,7 +206,10 @@
         "active": "actives",
         "paid": "Payé",
         "overdue": "En retard",
-        "noDebts": "Aucune dette trouvée"
+        "noDebts": "Aucune dette trouvée",
+        "markAsPaid": "Marquer comme payé",
+        "markAsUnpaid": "Marquer comme non payé",
+        "editDebt": "Modifier la dette"
     },
     "landing": {
         "tagline": "Gestion des Finances Personnelles",

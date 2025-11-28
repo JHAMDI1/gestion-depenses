@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -16,16 +16,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface DebtDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    initialData?: {
+        _id: Id<"debts">;
+        personName: string;
+        amount: number;
+        type: string;
+        dueDate?: number;
+        description?: string;
+    } | null;
 }
 
-export function DebtDialog({ open, onOpenChange }: DebtDialogProps) {
+export function DebtDialog({ open, onOpenChange, initialData }: DebtDialogProps) {
     const t = useTranslations("debts");
     const tCommon = useTranslations("common");
     const createDebt = useMutation(api.debts.createDebt);
+    const updateDebt = useMutation(api.debts.updateDebt);
 
     const [personName, setPersonName] = useState("");
     const [amount, setAmount] = useState("");
@@ -33,6 +43,24 @@ export function DebtDialog({ open, onOpenChange }: DebtDialogProps) {
     const [dueDate, setDueDate] = useState("");
     const [description, setDescription] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            if (initialData) {
+                setPersonName(initialData.personName);
+                setAmount(initialData.amount.toString());
+                setType(initialData.type as "LENT" | "BORROWED");
+                setDueDate(initialData.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : "");
+                setDescription(initialData.description || "");
+            } else {
+                setPersonName("");
+                setAmount("");
+                setType("BORROWED");
+                setDueDate("");
+                setDescription("");
+            }
+        }
+    }, [initialData, open]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,19 +73,27 @@ export function DebtDialog({ open, onOpenChange }: DebtDialogProps) {
         setIsSubmitting(true);
 
         try {
-            await createDebt({
-                personName,
-                amount: parseFloat(amount),
-                type,
-                dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
-                description: description || undefined,
-            });
-            toast.success(tCommon("success"));
-            setPersonName("");
-            setAmount("");
-            setType("BORROWED");
-            setDueDate("");
-            setDescription("");
+            if (initialData) {
+                await updateDebt({
+                    id: initialData._id,
+                    personName,
+                    amount: parseFloat(amount),
+                    type,
+                    dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
+                    description: description || undefined,
+                });
+                toast.success(tCommon("success"));
+            } else {
+                await createDebt({
+                    personName,
+                    amount: parseFloat(amount),
+                    type,
+                    dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
+                    description: description || undefined,
+                });
+                toast.success(tCommon("success"));
+            }
+
             onOpenChange(false);
         } catch (error) {
             toast.error(tCommon("error"));
@@ -72,10 +108,10 @@ export function DebtDialog({ open, onOpenChange }: DebtDialogProps) {
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent w-fit">
-                            {t("addDebt")}
+                            {initialData ? t("editDebt") : t("addDebt")}
                         </DialogTitle>
                         <DialogDescription>
-                            {t("addDebtDesc")}
+                            {initialData ? t("addDebtDesc") : t("addDebtDesc")}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-5 py-6">
@@ -149,7 +185,7 @@ export function DebtDialog({ open, onOpenChange }: DebtDialogProps) {
                     </div>
                     <DialogFooter>
                         <Button type="submit" disabled={isSubmitting} className="shadow-lg shadow-primary/20">
-                            {tCommon("create")}
+                            {initialData ? tCommon("save") : tCommon("create")}
                         </Button>
                     </DialogFooter>
                 </form>

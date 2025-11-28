@@ -37,34 +37,34 @@ export function TopCategoriesTable({ data, totalExpenses }: TopCategoriesTablePr
             </CardHeader>
             <CardContent>
                 <div className="overflow-x-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{tTrans("category")}</TableHead>
-                            <TableHead className="text-end">{tTrans("amount")}</TableHead>
-                            <TableHead className="text-end">{t("percentTotal")}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {sortedData.map((item) => (
-                            <TableRow key={item.name}>
-                                <TableCell className="font-medium flex items-center gap-2">
-                                    <div
-                                        className="w-3 h-3 rounded-full"
-                                        style={{ backgroundColor: item.color }}
-                                    />
-                                    {item.name}
-                                </TableCell>
-                                <TableCell className="text-end">
-                                    {format.number(item.value, { style: 'currency', currency: 'TND' })}
-                                </TableCell>
-                                <TableCell className="text-end">
-                                    {((item.value / totalExpenses) * 100).toFixed(1)}%
-                                </TableCell>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{tTrans("category")}</TableHead>
+                                <TableHead className="text-end">{tTrans("amount")}</TableHead>
+                                <TableHead className="text-end">{t("percentTotal")}</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {sortedData.map((item, index) => (
+                                <TableRow key={`${item.name}-${index}`}>
+                                    <TableCell className="font-medium flex items-center gap-2">
+                                        <div
+                                            className="w-3 h-3 rounded-full"
+                                            style={{ backgroundColor: item.color }}
+                                        />
+                                        {item.name}
+                                    </TableCell>
+                                    <TableCell className="text-end">
+                                        {format.number(item.value, { style: 'currency', currency: 'TND' })}
+                                    </TableCell>
+                                    <TableCell className="text-end">
+                                        {((item.value / totalExpenses) * 100).toFixed(1)}%
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </CardContent>
         </Card>

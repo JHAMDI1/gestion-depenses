@@ -80,20 +80,21 @@
 
   .dark {
     /* Dark Mode - Deep & Rich */
-    --background: 222 47% 11%;
-    /* #0f172a slate-900 */
+    --background: 224 71% 4%;
+    /* #020817 Slate-950+ */
     --foreground: 210 40% 98%;
     /* #f8fafc slate-50 */
 
     --card: 222 47% 11%;
+    /* #0f172a slate-900 */
     --card-foreground: 210 40% 98%;
 
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 249 95% 65%;
-    /* Lighter Indigo for dark mode */
-    --primary-foreground: 222 47% 11%;
+    --primary: 263 70% 50%;
+    /* Violet plus profond et vibrant */
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217 33% 17%;
     /* #1e293b slate-800 */
@@ -110,7 +111,7 @@
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 249 95% 65%;
+    --ring: 263 70% 50%;
   }
 }
 

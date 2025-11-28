@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { InstallPWA } from "@/components/pwa/InstallPWA";
 import { NextIntlClientProvider } from 'next-intl';
 import type { AbstractIntlMessages } from 'next-intl';
 import "../globals.css";
@@ -40,10 +41,22 @@ export default async function LocaleLayout({
                             disableTransitionOnChange
                         >
                             {children}
-                            <Toaster />
+                            <Toaster richColors />
+                            <InstallPWA />
                         </ThemeProvider>
                     </ConvexClientProvider>
                 </NextIntlClientProvider>
+                <script dangerouslySetInnerHTML={{
+                    __html: `
+                        if ('serviceWorker' in navigator) {
+                            window.addEventListener('load', () => {
+                                navigator.serviceWorker.register('/sw.js')
+                                    .then(reg => console.log('SW registered:', reg))
+                                    .catch(err => console.log('SW registration failed:', err));
+                            });
+                        }
+                    `
+                }} />
             </div>
         </ClerkProvider>
     );

@@ -70,10 +70,12 @@ Sous-étapes (si besoin):
   - [x] Calcul dépenses mensuelles par catégorie vs `monthlyLimit`
   - [x] Afficher compteur d'alertes + liste détaillée (Dashboard)
   - [x] Stats cards mises à jour avec budget restant et alertes
-- [/] Récurrents – Engine (planificateur Convex)
+- [x] Récurrents – Engine (planificateur Convex)
   - [x] Logique de génération de transaction (anti-doublons)
   - [x] UI: Bouton de génération manuelle "Générer"
-  - [ ] Tâche planifiée (cron) pour automatisation complète
+  - [x] Tâche planifiée (cron) pour automatisation complète
+  - [x] `convex/crons.ts` configuré avec job quotidien
+  - [x] `processAllRecurrings` internal mutation
 - [x] Stats – Agrégations backend Convex (perf)
   - [x] Endpoints agrégés (répartition par catégorie, séries mensuelles)
   - [x] Support complet Revenus vs Dépenses (Toggle)
@@ -86,6 +88,9 @@ Sous-étapes (si besoin):
   - [x] Table `balance` et logique de calcul (Revenus - Dépenses + Dettes)
   - [x] Composant `BalanceCard` avec détails dépliables
   - [x] Dialog d'initialisation du solde
+- [x] **Catégories – Gestion complète**
+  - [x] Modifier catégorie (nom, icône, couleur)
+  - [x] Supprimer catégorie avec confirmation
 
 ## 4) SEO/Perf/Qualité
 - [/] Metadata locales (title/description par page)
@@ -108,12 +113,18 @@ Variables supplémentaires si activé:
 - [ ] `OPENAI_API_KEY` (ou provider équivalent)
 
 ## 6) Documentation & Opérations
-- [ ] Mettre à jour README (tokens thème, SEO, LLM, nouvelles features)
+- [x] Mettre à jour README (tokens thème, SEO, LLM, nouvelles features)
+  - [x] Section Features complète (Balance, Dettes, Stats Revenus, Cron)
+  - [x] Section Design System & Theming (tokens CSS)
+  - [x] Section SEO (metadata.ts)
+  - [x] Section Automatisation (Cron Jobs)
+  - [x] Section LLM (architecture V2)
+  - [x] Roadmap V1/V2
 - [x] Mettre à jour walkthrough (Design modernization)
 - [x] Guide d'export CSV (implémenté dans Settings)
 - [x] Guide utilisateur complet (GUIDE_UTILISATEUR.md)
 - [ ] Changelog V1
-- [x] Documentation des nouvelles fonctionnalités (Dettes, Revenus/Dépenses)
+- [x] Documentation des nouvelles fonctionnalités (Dettes, Revenus/Dépenses, Balance, Cron, Catégories)
 
 ---
 

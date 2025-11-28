@@ -33,6 +33,8 @@ import { ExportCSV } from "@/components/stats/ExportCSV";
 import { TopCategoriesTable } from "@/components/stats/TopCategoriesTable";
 import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { ChartSkeleton, StatsCardSkeleton } from "@/components/shared/ChartSkeleton";
+import PageTransition from "@/components/shared/PageTransition";
 
 export default function StatsPage() {
     const tCommon = useTranslations("common");
@@ -78,8 +80,15 @@ function StatsContent() {
 
     if (!monthlySeries || !expensesAgg || !incomeSeries || !incomesAgg || !comparisonSeries) {
         return (
-            <div className="flex h-[50vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <ChartSkeleton />
+                    <ChartSkeleton />
+                </div>
             </div>
         );
     }
@@ -109,7 +118,7 @@ function StatsContent() {
     const displayTotal = filter === "INCOME" ? totalIncomes : totalExpenses;
 
     return (
-        <div className="space-y-8">
+        <PageTransition className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h1 className="text-3xl font-bold">{t("title")}</h1>
@@ -144,7 +153,7 @@ function StatsContent() {
                         </Button>
                     </div>
                     {transactions && (
-                        <ExportCSV data={transactions} filename={`masrouf_export_${new Date().toISOString().split('T')[0]}.csv`} />
+                        <ExportCSV data={transactions || []} filename={`masrouf_export_${new Date().toISOString().split('T')[0]}.csv`} />
                     )}
                     <Select value={timeRange} onValueChange={setTimeRange}>
                         <SelectTrigger className="w-full sm:w-[180px]">
@@ -292,6 +301,6 @@ function StatsContent() {
             </div>
 
             {filter !== "ALL" && <TopCategoriesTable data={displayData} totalExpenses={displayTotal} />}
-        </div>
+        </PageTransition>
     );
 }

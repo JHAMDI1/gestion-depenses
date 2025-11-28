@@ -117,6 +117,7 @@ export const getMonthlyTotal = query({
 });
 
 // Mutation: Créer une nouvelle transaction
+// Mutation: Créer une nouvelle transaction
 export const createTransaction = mutation({
     args: {
         categoryId: v.id("categories"),
@@ -129,21 +130,53 @@ export const createTransaction = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Non authentifié");
 
-        // Vérifier que la catégorie appartient à l'utilisateur
-        const category = await ctx.db.get(args.categoryId);
-        if (!category || category.userId !== identity.subject) {
-            throw new Error("Catégorie invalide");
-        }
+        // Validation Zod & Security
+        try {
+            const { transactionSchema } = await import("../lib/validation");
+            const { validateWithZod, checkRateLimit, logAudit } = await import("./helpers/security");
 
-        return await ctx.db.insert("transactions", {
-            userId: identity.subject,
-            categoryId: args.categoryId,
-            name: args.name,
-            amount: args.amount,
-            type: args.type || "EXPENSE", // Par défaut EXPENSE pour compatibilité
-            date: args.date,
-            createdAt: Date.now(),
-        });
+            // 1. Validation
+            validateWithZod(transactionSchema, {
+                categoryId: args.categoryId,
+                name: args.name,
+                amount: args.amount,
+                type: args.type || "EXPENSE",
+                date: args.date,
+            });
+
+            // 2. Rate Limiting
+            await checkRateLimit(ctx, "createTransaction", identity.subject);
+
+            // Vérifier que la catégorie appartient à l'utilisateur
+            const category = await ctx.db.get(args.categoryId);
+            if (!category || category.userId !== identity.subject) {
+                throw new Error("Catégorie invalide");
+            }
+
+            // 3. Création
+            const transactionId = await ctx.db.insert("transactions", {
+                userId: identity.subject,
+                categoryId: args.categoryId,
+                name: args.name,
+                amount: args.amount,
+                type: args.type || "EXPENSE",
+                date: args.date,
+                createdAt: Date.now(),
+            });
+
+            // 4. Audit Log
+            await logAudit(ctx, {
+                userId: identity.subject,
+                action: "createTransaction",
+                resourceType: "transactions",
+                resourceId: transactionId,
+                details: { amount: args.amount, type: args.type },
+            });
+
+            return transactionId;
+        } catch (error) {
+            throw error;
+        }
     },
 });
 
@@ -161,6 +194,21 @@ export const updateTransaction = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Non authentifié");
 
+        const { transactionSchema } = await import("../lib/validation");
+        const { validateWithZod, checkRateLimit, logAudit } = await import("./helpers/security");
+
+        // 1. Validation
+        validateWithZod(transactionSchema, {
+            categoryId: args.categoryId,
+            name: args.name,
+            amount: args.amount,
+            type: args.type || "EXPENSE",
+            date: args.date,
+        });
+
+        // 2. Rate Limiting
+        await checkRateLimit(ctx, "updateTransaction", identity.subject);
+
         const transaction = await ctx.db.get(args.id);
         if (!transaction || transaction.userId !== identity.subject) {
             throw new Error("Transaction non trouvée");
@@ -172,12 +220,22 @@ export const updateTransaction = mutation({
             throw new Error("Catégorie invalide");
         }
 
+        // 3. Update
         await ctx.db.patch(args.id, {
             categoryId: args.categoryId,
             name: args.name,
             amount: args.amount,
             type: args.type || "EXPENSE",
             date: args.date,
+        });
+
+        // 4. Audit Log
+        await logAudit(ctx, {
+            userId: identity.subject,
+            action: "updateTransaction",
+            resourceType: "transactions",
+            resourceId: args.id,
+            details: { amount: args.amount, type: args.type, previousAmount: transaction.amount },
         });
     },
 });
@@ -191,11 +249,25 @@ export const deleteTransaction = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Non authentifié");
 
+        const { checkRateLimit, logAudit } = await import("./helpers/security");
+
+        // Rate Limiting
+        await checkRateLimit(ctx, "deleteTransaction", identity.subject);
+
         const transaction = await ctx.db.get(args.id);
         if (!transaction || transaction.userId !== identity.subject) {
             throw new Error("Transaction non trouvée");
         }
 
         await ctx.db.delete(args.id);
+
+        // Audit Log
+        await logAudit(ctx, {
+            userId: identity.subject,
+            action: "deleteTransaction",
+            resourceType: "transactions",
+            resourceId: args.id,
+            details: { amount: transaction.amount },
+        });
     },
 });

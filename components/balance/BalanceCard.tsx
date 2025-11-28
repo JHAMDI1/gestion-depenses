@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Wallet, ChevronDown, ChevronUp, Edit2 } from "lucide-react";
 import { SetInitialBalanceDialog } from "./SetInitialBalanceDialog";
 import { useFormatter } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function BalanceCard() {
     const format = useFormatter();
@@ -79,40 +80,50 @@ export function BalanceCard() {
                         </Button>
 
                         {/* Détails dépliables */}
-                        {isExpanded && (
-                            <div className="space-y-2 p-4 rounded-lg bg-background/50 border border-border/50">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Solde initial</span>
-                                    <span className="font-medium">{format.number(initialAmount, { style: 'currency', currency: 'TND' })}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-green-600 dark:text-green-400">+ Revenus</span>
-                                    <span className="font-medium text-green-600 dark:text-green-400">{format.number(totalIncome, { style: 'currency', currency: 'TND' })}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-red-600 dark:text-red-400">- Dépenses</span>
-                                    <span className="font-medium text-red-600 dark:text-red-400">{format.number(totalExpenses, { style: 'currency', currency: 'TND' })}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-green-600 dark:text-green-400">+ Emprunts</span>
-                                    <span className="font-medium text-green-600 dark:text-green-400">{format.number(totalBorrowed, { style: 'currency', currency: 'TND' })}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-red-600 dark:text-red-400">- Prêts</span>
-                                    <span className="font-medium text-red-600 dark:text-red-400">{format.number(totalLent, { style: 'currency', currency: 'TND' })}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-red-600 dark:text-red-400">- Épargne</span>
-                                    <span className="font-medium text-red-600 dark:text-red-400">{format.number(totalSavings, { style: 'currency', currency: 'TND' })}</span>
-                                </div>
-                                <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-bold">
-                                    <span>Total</span>
-                                    <span className={currentBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                        {format.number(currentBalance, { style: 'currency', currency: 'TND' })}
-                                    </span>
-                                </div>
-                            </div>
-                        )}
+                        <AnimatePresence>
+                            {isExpanded && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="space-y-2 p-4 rounded-lg bg-background/50 border border-border/50 mt-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-muted-foreground">Solde initial</span>
+                                            <span className="font-medium">{format.number(initialAmount, { style: 'currency', currency: 'TND' })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-green-600 dark:text-green-400">+ Revenus</span>
+                                            <span className="font-medium text-green-600 dark:text-green-400">{format.number(totalIncome, { style: 'currency', currency: 'TND' })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-red-600 dark:text-red-400">- Dépenses</span>
+                                            <span className="font-medium text-red-600 dark:text-red-400">{format.number(totalExpenses, { style: 'currency', currency: 'TND' })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-green-600 dark:text-green-400">+ Emprunts</span>
+                                            <span className="font-medium text-green-600 dark:text-green-400">{format.number(totalBorrowed, { style: 'currency', currency: 'TND' })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-red-600 dark:text-red-400">- Prêts</span>
+                                            <span className="font-medium text-red-600 dark:text-red-400">{format.number(totalLent, { style: 'currency', currency: 'TND' })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-red-600 dark:text-red-400">- Épargne</span>
+                                            <span className="font-medium text-red-600 dark:text-red-400">{format.number(totalSavings, { style: 'currency', currency: 'TND' })}</span>
+                                        </div>
+                                        <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-bold">
+                                            <span>Total</span>
+                                            <span className={currentBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                                {format.number(currentBalance, { style: 'currency', currency: 'TND' })}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </CardContent>
             </Card>

@@ -12,6 +12,8 @@ import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { BalanceCard } from "@/components/balance/BalanceCard";
+import { TransactionListSkeleton } from "@/components/shared/TransactionSkeleton";
+import PageTransition from "@/components/shared/PageTransition";
 
 export default function DashboardPage() {
     const tCommon = useTranslations("common");
@@ -54,7 +56,7 @@ function DashboardContent() {
 
     return (
         <>
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <PageTransition className="space-y-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{t("title")}</h1>
@@ -78,7 +80,9 @@ function DashboardContent() {
                             <h2 className="text-xl font-semibold tracking-tight">{t("recentTransactions")}</h2>
                         </div>
                         <div className="space-y-4">
-                            {!recentTransactions || recentTransactions.length === 0 ? (
+                            {!recentTransactions ? (
+                                <TransactionListSkeleton count={3} />
+                            ) : recentTransactions.length === 0 ? (
                                 <Card className="flex flex-col items-center justify-center py-12 text-center border-dashed">
                                     <div className="rounded-full bg-muted p-4 mb-4">
                                         <Receipt className="h-8 w-8 text-muted-foreground" />
@@ -136,7 +140,7 @@ function DashboardContent() {
                         {/* We can add a chart here later */}
                     </div>
                 </div>
-            </div>
+            </PageTransition>
 
             <AddTransactionDialog
                 open={isAddDialogOpen}

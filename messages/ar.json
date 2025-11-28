@@ -206,7 +206,10 @@
         "active": "نشطة",
         "paid": "مدفوع",
         "overdue": "متأخر",
-        "noDebts": "لا توجد ديون"
+        "noDebts": "لا توجد ديون",
+        "markAsPaid": "تحديد كمدفوع",
+        "markAsUnpaid": "تحديد كغير مدفوع",
+        "editDebt": "تعديل الدين"
     },
     "landing": {
         "tagline": "إدارة المالية الشخصية",

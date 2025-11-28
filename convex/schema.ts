@@ -84,4 +84,27 @@ export default defineSchema({
         description: v.optional(v.string()), // Description optionnelle
         createdAt: v.number(),     // Timestamp de création
     }).index("by_user", ["userId"]),
+
+    // Logs d'audit pour la sécurité
+    audit_logs: defineTable({
+        userId: v.string(),
+        action: v.string(),        // "createTransaction", "deleteBudget", etc.
+        resourceType: v.string(),  // "transactions", "budgets", etc.
+        resourceId: v.string(),    // ID de la ressource
+        details: v.optional(v.any()), // Détails supplémentaires (JSON)
+        ipAddress: v.optional(v.string()),
+        timestamp: v.number(),
+    })
+        .index("by_user", ["userId"])
+        .index("by_action", ["action"])
+        .index("by_timestamp", ["timestamp"]),
+
+    // Rate limiting
+    rate_limits: defineTable({
+        identifier: v.string(),    // userId ou IP
+        action: v.string(),        // "createTransaction", etc.
+        count: v.number(),         // Nombre de requêtes
+        windowStart: v.number(),   // Début de la fenêtre de temps
+    })
+        .index("by_identifier_action", ["identifier", "action"]),
 });

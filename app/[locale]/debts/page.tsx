@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Check, X, AlertCircle } from "lucide-react";
+import { Plus, Check, Trash2, AlertCircle, Pencil } from "lucide-react";
 import { DebtDialog } from "@/components/debts/DebtDialog";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
@@ -41,7 +41,13 @@ function DebtsContent() {
     const deleteDebt = useMutation(api.debts.deleteDebt);
 
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [editingDebt, setEditingDebt] = useState<any>(null);
     const [filter, setFilter] = useState<"ALL" | "LENT" | "BORROWED">("ALL");
+
+    const handleEdit = (debt: any) => {
+        setEditingDebt(debt);
+        setIsAddDialogOpen(true);
+    };
 
     const handleTogglePaid = async (id: Id<"debts">) => {
         try {
@@ -84,7 +90,7 @@ function DebtsContent() {
                             {t("subtitle")}
                         </p>
                     </div>
-                    <Button size="lg" className="gap-2 shadow-lg hover:shadow-primary/25" onClick={() => setIsAddDialogOpen(true)}>
+                    <Button size="lg" className="gap-2 shadow-lg hover:shadow-primary/25" onClick={() => { setEditingDebt(null); setIsAddDialogOpen(true); }}>
                         <Plus className="h-5 w-5" />
                         {t("addDebt")}
                     </Button>
@@ -182,18 +188,29 @@ function DebtsContent() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => handleTogglePaid(debt._id)}
-                                                className={debt.isPaid ? "text-green-600" : "text-muted-foreground"}
+                                                onClick={() => handleEdit(debt)}
+                                                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                title={t("editDebt")}
                                             >
-                                                {debt.isPaid ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
+                                                <Pencil className="h-5 w-5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleTogglePaid(debt._id)}
+                                                className={debt.isPaid ? "text-green-600 hover:text-green-700 hover:bg-green-50" : "text-muted-foreground hover:text-green-600 hover:bg-green-50"}
+                                                title={debt.isPaid ? t("markAsUnpaid") : t("markAsPaid")}
+                                            >
+                                                <Check className={`h-5 w-5 ${debt.isPaid ? "fill-current" : ""}`} />
                                             </Button>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => handleDelete(debt._id)}
-                                                className="text-muted-foreground hover:text-destructive"
+                                                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                                title={tCommon("delete")}
                                             >
-                                                <X className="h-5 w-5" />
+                                                <Trash2 className="h-5 w-5" />
                                             </Button>
                                         </div>
                                     </div>
@@ -206,7 +223,11 @@ function DebtsContent() {
 
             <DebtDialog
                 open={isAddDialogOpen}
-                onOpenChange={setIsAddDialogOpen}
+                onOpenChange={(open) => {
+                    setIsAddDialogOpen(open);
+                    if (!open) setEditingDebt(null);
+                }}
+                initialData={editingDebt}
             />
         </>
     );
