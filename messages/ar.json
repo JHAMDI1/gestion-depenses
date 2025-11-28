@@ -73,7 +73,18 @@
         "last3Months": "آخر 3 أشهر",
         "last6Months": "آخر 6 أشهر",
         "last12Months": "آخر 12 شهر",
-        "percentTotal": "النسبة من الإجمالي"
+        "percentTotal": "النسبة من الإجمالي",
+        "balanceEvolution": "تطور الرصيد",
+        "trendUp": "اتجاه تصاعدي",
+        "trendDown": "اتجاه تنازلي",
+        "prediction": "توقعات",
+        "balance": "الرصيد",
+        "topExpenses": "أعلى النفقات",
+        "noExpenses": "لا توجد نفقات هذا الشهر",
+        "monthlyExpenses": "نفقات الشهر",
+        "yearlyExpenses": "نفقات السنة",
+        "lastMonth": "الشهر الماضي",
+        "lastYear": "السنة الماضية"
     },
     "budgets": {
         "title": "الميزانيات",

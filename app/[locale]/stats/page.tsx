@@ -13,28 +13,37 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import {
-    PieChart,
-    Pie,
-    Cell,
-    ResponsiveContainer,
-    Tooltip,
-    Legend,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { format } from "date-fns";
 import { fr, ar } from "date-fns/locale";
-import { Loader2, TrendingUp, PieChart as PieChartIcon } from "lucide-react";
+import { TrendingUp, PieChart as PieChartIcon } from "lucide-react";
 import { ExportCSV } from "@/components/stats/ExportCSV";
 import { TopCategoriesTable } from "@/components/stats/TopCategoriesTable";
 import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { ChartSkeleton, StatsCardSkeleton } from "@/components/shared/ChartSkeleton";
 import PageTransition from "@/components/shared/PageTransition";
+
+const BalanceEvolutionChart = dynamic(() => import("@/components/analytics/BalanceEvolutionChart").then(mod => mod.BalanceEvolutionChart), {
+    loading: () => <ChartSkeleton />,
+    ssr: false
+});
+const TopExpensesList = dynamic(() => import("@/components/analytics/TopExpensesList").then(mod => mod.TopExpensesList), {
+    loading: () => <ChartSkeleton />,
+    ssr: false
+});
+const ComparisonCards = dynamic(() => import("@/components/analytics/ComparisonCards").then(mod => mod.ComparisonCards), {
+    loading: () => <div className="h-24 bg-muted animate-pulse rounded-lg" />,
+    ssr: false
+});
+const MonthlyTrendChart = dynamic(() => import("@/components/analytics/MonthlyTrendChart").then(mod => mod.MonthlyTrendChart), {
+    loading: () => <ChartSkeleton />,
+    ssr: false
+});
+const CategoryDistributionChart = dynamic(() => import("@/components/analytics/CategoryDistributionChart").then(mod => mod.CategoryDistributionChart), {
+    loading: () => <ChartSkeleton />,
+    ssr: false
+});
 
 export default function StatsPage() {
     const tCommon = useTranslations("common");
@@ -197,42 +206,15 @@ function StatsContent() {
                 </Card>
             </div>
 
+            <ComparisonCards />
+
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="col-span-2 lg:col-span-1">
                     <CardHeader>
                         <CardTitle>{t("monthlyTrend")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={lastXMonths}>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="var(--color-muted-foreground)"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="var(--color-muted-foreground)"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(value) => `${value} TND`}
-                                    />
-                                    <Tooltip
-                                        formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
-                                        contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
-                                    />
-                                    <Bar
-                                        dataKey="amount"
-                                        fill="var(--color-primary)"
-                                        radius={[4, 4, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <MonthlyTrendChart data={lastXMonths} />
                     </CardContent>
                 </Card>
 
@@ -243,64 +225,17 @@ function StatsContent() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
-                            {filter === "ALL" ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={comparisonSeries}>
-                                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                        <XAxis
-                                            dataKey="month"
-                                            stroke="var(--color-muted-foreground)"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                        />
-                                        <YAxis
-                                            stroke="var(--color-muted-foreground)"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                            tickFormatter={(value) => `${value} TND`}
-                                        />
-                                        <Tooltip
-                                            formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
-                                            contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
-                                        />
-                                        <Legend />
-                                        <Bar dataKey="income" fill="#10b981" name="Revenus" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey="expense" fill="#ef4444" name="Dépenses" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            ) : (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={displayData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={5}
-                                            dataKey="value"
-                                        >
-                                            {displayData.map((entry: { color?: string }, index: number) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color || 'var(--color-primary)'} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            formatter={(value: number) => formatFormatter.number(value, { style: 'currency', currency: 'TND' })}
-                                            contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
-                                        />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            )}
-                        </div>
+                        <CategoryDistributionChart filter={filter} comparisonSeries={comparisonSeries} displayData={displayData} />
                     </CardContent>
                 </Card>
             </div>
 
-            {filter !== "ALL" && <TopCategoriesTable data={displayData} totalExpenses={displayTotal} />}
+            <BalanceEvolutionChart />
+
+            <div className="grid gap-4 md:grid-cols-2">
+                {filter !== "ALL" && <TopCategoriesTable data={displayData} totalExpenses={displayTotal} />}
+                <TopExpensesList />
+            </div>
         </PageTransition>
     );
 }

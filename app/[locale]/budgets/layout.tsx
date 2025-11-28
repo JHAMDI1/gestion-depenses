@@ -1,0 +1,9 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Budgets",
+};
+
+export default function BudgetsLayout({ children }: { children: React.ReactNode }) {
+    return <>{children}</>;
+}

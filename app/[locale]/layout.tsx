@@ -15,8 +15,34 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "Masrouf - Gestion des Finances Personnelles",
-    description: "Application de gestion des finances personnelles moderne et intuitive",
+    title: {
+        template: "%s | Masrouf",
+        default: "Masrouf - Gestion des Finances Personnelles",
+    },
+    description: "Prenez le contrôle de vos finances avec Masrouf. Suivez vos dépenses, gérez vos budgets et atteignez vos objectifs d'épargne.",
+    applicationName: "Masrouf",
+    authors: [{ name: "Masrouf Team" }],
+    keywords: ["finance", "budget", "dépenses", "épargne", "masrouf", "gestion"],
+    openGraph: {
+        type: "website",
+        locale: "fr_FR",
+        url: "https://masrouf.app",
+        siteName: "Masrouf",
+        images: [
+            {
+                url: "/og-image.png",
+                width: 1200,
+                height: 630,
+                alt: "Masrouf App",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Masrouf - Gestion des Finances Personnelles",
+        description: "Prenez le contrôle de vos finances avec Masrouf.",
+        images: ["/og-image.png"],
+    },
 };
 
 export default async function LocaleLayout({

@@ -73,7 +73,18 @@
         "last3Months": "3 derniers mois",
         "last6Months": "6 derniers mois",
         "last12Months": "12 derniers mois",
-        "percentTotal": "Pourcentage du total"
+        "percentTotal": "Pourcentage du total",
+        "balanceEvolution": "Évolution du Solde",
+        "trendUp": "Tendance à la hausse",
+        "trendDown": "Tendance à la baisse",
+        "prediction": "Prédiction",
+        "balance": "Solde",
+        "topExpenses": "Top Dépenses",
+        "noExpenses": "Aucune dépense ce mois-ci",
+        "monthlyExpenses": "Dépenses du mois",
+        "yearlyExpenses": "Dépenses de l'année",
+        "lastMonth": "Mois dernier",
+        "lastYear": "Année dernière"
     },
     "budgets": {
         "title": "Budgets",

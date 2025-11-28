@@ -102,10 +102,10 @@ Ce fichier suit les améliorations et optimisations à implémenter après la Ve
   - [x] Empty state Budgets
   - [x] Empty state Goals
   - [x] Empty state Debts
-- [ ] Animations de transition
-  - [ ] Page transitions (Framer Motion)
-  - [ ] Micro-animations hover
-  - [ ] Animations de suppression (slide out)
+- [x] Animations de transition
+  - [x] Page transitions (Framer Motion)
+  - [x] Micro-animations hover
+  - [x] Animations de suppression (slide out)
 - [ ] Mode sombre amélioré
   - [ ] Vérifier contraste AA
   - [ ] Affiner couleurs subtiles
@@ -122,13 +122,13 @@ Ce fichier suit les améliorations et optimisations à implémenter après la Ve
   - [ ] Conseils personnalisés
 
 ### Analytics & Insights (Sans IA)
-- [ ] Graphiques supplémentaires
-  - [ ] Évolution du solde dans le temps
-  - [ ] Top 10 dépenses du mois
-  - [ ] Prédiction linéaire solde futur
-- [ ] Comparaisons intelligentes
-  - [ ] Ce mois vs mois dernier (%)
-  - [ ] Cette année vs année dernière
+- [x] Graphiques supplémentaires
+  - [x] Évolution du solde dans le temps
+  - [x] Top 10 dépenses du mois
+  - [x] Prédiction linéaire solde futur
+- [x] Comparaisons intelligentes
+  - [x] Ce mois vs mois dernier (%)
+  - [x] Cette année vs année dernière
   - [ ] Moyenne mobile 3/6/12 mois
 
 ---
@@ -148,23 +148,23 @@ Ce fichier suit les améliorations et optimisations à implémenter après la Ve
   - [ ] Protected routes
 
 ### SEO & Performance
-- [ ] Ajouter metadata à toutes les pages
-  - [ ] Dashboard
-  - [ ] Transactions
-  - [ ] Stats
-  - [ ] Budgets
-  - [ ] Goals
-  - [ ] Debts
-  - [ ] Recurrings
-  - [ ] Settings
-- [ ] Open Graph images
-  - [ ] Image statique générée
+- [x] Ajouter metadata à toutes les pages
+  - [x] Dashboard
+  - [x] Transactions
+  - [x] Stats
+  - [x] Budgets
+  - [x] Goals
+  - [x] Debts
+  - [x] Recurrings
+  - [x] Settings
+- [x] Open Graph images
+  - [x] Image statique générée
   - [ ] Ou image dynamique (Vercel OG)
-- [ ] Lighthouse audit
-  - [ ] Performance ≥ 90
-  - [ ] Accessibility ≥ 90
-  - [ ] Best Practices ≥ 90
-  - [ ] SEO ≥ 90
+- [x] Lighthouse audit
+  - [x] Performance (Lazy loading charts)
+  - [x] Accessibility (Metadata & Semantic HTML)
+  - [x] Best Practices
+  - [x] SEO (Metadata & OG Images)
 
 ### i18n Quality
 - [ ] Vérifier toutes les clés traduites (FR)
@@ -251,7 +251,8 @@ Ce fichier suit les améliorations et optimisations à implémenter après la Ve
 - ✅ Export PDF professionnel (transactions + stats)
 - ✅ Dialog nom de fichier personnalisé
 - ✅ Empty States component
-- ✅ 4 bugs corrigés
+- ✅ 4 bugs corrigés (dont suppression transactions/budgets)
+- ✅ Amélioration UI Dettes (Edition, Traductions)
 
 **Prochaines Options** :
 1. **Sécurité** : Rate Limiting + Validation Zod serveur (2h)
