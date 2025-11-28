@@ -1,6 +1,35 @@
 # Masrouf - Application de Gestion des Finances Personnelles
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Convex](https://img.shields.io/badge/Convex-Backend-orange)](https://convex.dev/)
+
 Application web moderne de gestion des finances personnelles construite avec Next.js, Clerk et Convex.
+
+## 📚 Documentation
+
+- 📖 [**Guide Utilisateur**](GUIDE_UTILISATEUR.md) - Documentation complète pour utiliser l'application
+- 🤝 [**Guide de Contribution**](CONTRIBUTING.md) - Comment contribuer au projet
+- 📜 [**Code de Conduite**](CODE_OF_CONDUCT.md) - Règles de la communauté
+
+## 📋 Table des Matières
+
+- [Fonctionnalités](#-fonctionnalités)
+- [Stack Technique](#️-stack-technique)
+- [Installation](#-installation)
+- [Variables d'Environnement](#-variables-denvironnement)
+- [Structure du Projet](#-structure-du-projet)
+- [Design System](#-design-system--theming)
+- [Internationalisation](#-internationalisation-i18n)
+- [SEO](#-seo)
+- [Automatisation](#️-automatisation-cron-jobs)
+- [Déploiement](#-déploiement)
+- [Scripts Disponibles](#-scripts-disponibles)
+- [Architecture](#-architecture--scalabilité)
+- [Feuille de Route](#-feuille-de-route-roadmap)
+- [Contribution](#-contribution)
+- [Licence](#-licence)
 
 ## 🚀 Fonctionnalités
 
@@ -43,11 +72,15 @@ Application web moderne de gestion des finances personnelles construite avec Nex
 
 ## 📦 Installation
 
+### Démarrage Rapide
+
 1. **Cloner le repository** :
 ```bash
-git clone <repository-url>
-cd masrouf/web
+git clone https://github.com/JHAMDI1/gestion-depences.git
+cd gestion-depences/web
 ```
+
+> 💡 **Astuce** : Remplacez `JHAMDI1` par votre nom d'utilisateur GitHub si vous avez forké le projet.
 
 2. **Installer les dépendances** :
 ```bash
@@ -77,6 +110,9 @@ npm run dev
 
 6. **Ouvrir** [http://localhost:3000](http://localhost:3000)
 
+> 📖 Pour plus de détails sur la configuration, consultez le [Guide de Contribution](CONTRIBUTING.md).
+
+
 ## 🔑 Variables d'Environnement
 
 Voir `.env.example` pour la liste complète des variables requises.
@@ -87,8 +123,8 @@ Voir `.env.example` pour la liste complète des variables requises.
 - `CLERK_HOSTNAME` (ex: `your-subdomain.clerk.accounts.dev`)
 
 ### Convex (Base de données)
-- `CONVEX_DEPLOYMENT` (ex: `prod:uncommon-spoonbill-708`)
-- `NEXT_PUBLIC_CONVEX_URL` (ex: `https://uncommon-spoonbill-708.convex.cloud`)
+- `CONVEX_DEPLOYMENT` (ex: `prod:<project-convex-name>`)
+- `NEXT_PUBLIC_CONVEX_URL` (ex: `https://<project-convex-name>.convex.cloud`)
 
 ### Site
 - `NEXT_PUBLIC_SITE_URL` (ex: `https://gestion-depences.vercel.app`)
@@ -285,16 +321,34 @@ OPENAI_API_KEY=sk-...  # Ou autre provider (Mistral, Anthropic)
 
 ## 🤝 Contribution
 
-Ce projet est en développement actif. Pour contribuer :
-1. Fork le repository
-2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
+Les contributions sont les bienvenues ! Ce projet est ouvert à la communauté.
+
+**Pour contribuer** :
+1. ⭐ **Star** le projet si vous l'aimez
+2. 🐛 **Rapportez des bugs** via les [Issues](../../issues)
+3. 💡 **Proposez des features** via les [Feature Requests](../../issues/new?template=feature_request.md)
+4. 🔧 **Soumettez des Pull Requests**
+
+📖 **Consultez le [Guide de Contribution](CONTRIBUTING.md)** pour les détails sur :
+- Comment configurer l'environnement de développement
+- Les conventions de code et commits
+- Le processus de Pull Request
+
+📜 **Lisez le [Code de Conduite](CODE_OF_CONDUCT.md)** - nous nous engageons à maintenir un environnement accueillant pour tous.
 
 ## 📄 Licence
 
-Privé
+Ce projet est sous licence **MIT** - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+Cela signifie que vous êtes libre de :
+- ✅ Utiliser le code à des fins commerciales
+- ✅ Modifier le code
+- ✅ Distribuer le code
+- ✅ Utiliser le code en privé
+
+À condition de :
+- 📝 Inclure la licence et le copyright dans toute copie
+- 🚫 Ne pas tenir les auteurs responsables
 
 ## 👨‍💻 Auteur
 

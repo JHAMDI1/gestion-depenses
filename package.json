@@ -1,7 +1,24 @@
 {
-  "name": "web",
+  "name": "masrouf",
   "version": "0.1.0",
   "private": true,
+  "description": "Application web moderne de gestion des finances personnelles avec Next.js, Clerk et Convex",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JHAMDI1/gestion-depences"
+  },
+  "keywords": [
+    "finance",
+    "budget",
+    "expense-tracker",
+    "personal-finance",
+    "nextjs",
+    "convex",
+    "clerk",
+    "typescript"
+  ],
+  "author": "Jouini Hamdi",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
