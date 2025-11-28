@@ -70,17 +70,22 @@ Sous-étapes (si besoin):
   - [x] Calcul dépenses mensuelles par catégorie vs `monthlyLimit`
   - [x] Afficher compteur d'alertes + liste détaillée (Dashboard)
   - [x] Stats cards mises à jour avec budget restant et alertes
-- [ ] Récurrents – Engine (planificateur Convex)
-  - [ ] Tâche planifiée (mensuelle) qui crée les transactions à la date choisie
-  - [ ] Journalisation des créations, idempotence
+- [/] Récurrents – Engine (planificateur Convex)
+  - [x] Logique de génération de transaction (anti-doublons)
+  - [x] UI: Bouton de génération manuelle "Générer"
+  - [ ] Tâche planifiée (cron) pour automatisation complète
 - [x] Stats – Agrégations backend Convex (perf)
   - [x] Endpoints agrégés (répartition par catégorie, séries mensuelles)
-  - [x] Filtrage expenses uniquement (pas de revenus)
+  - [x] Support complet Revenus vs Dépenses (Toggle)
   - [x] Remplacement du calcul côté client
 - [x] Goals – UX épargne
   - [x] Créé AddSavingsDialog et WithdrawSavingsDialog
   - [x] Mutations addSavings et withdrawSavings dans Convex
   - [x] Remplacé `prompt` par dialogs structurés avec validation
+- [x] **Système de Balance (Solde)**
+  - [x] Table `balance` et logique de calcul (Revenus - Dépenses + Dettes)
+  - [x] Composant `BalanceCard` avec détails dépliables
+  - [x] Dialog d'initialisation du solde
 
 ## 4) SEO/Perf/Qualité
 - [/] Metadata locales (title/description par page)

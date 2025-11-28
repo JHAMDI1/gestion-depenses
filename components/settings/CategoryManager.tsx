@@ -20,14 +20,25 @@ import { toast } from "sonner";
 import { Plus, Trash2, Edit } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+type Category = {
+    _id: Id<"categories">;
+    name: string;
+    icon: string;
+    color: string;
+};
+
 export function CategoryManager() {
     const t = useTranslations("settings");
     const tCommon = useTranslations("common");
     const categories = useQuery(api.categories.getCategories);
     const createCategory = useMutation(api.categories.createCategory);
+    const updateCategory = useMutation(api.categories.updateCategory);
     const deleteCategory = useMutation(api.categories.deleteCategory);
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
     const [name, setName] = useState("");
     const [icon, setIcon] = useState("📦");
     const [color, setColor] = useState("#7c3aed");
@@ -53,7 +64,45 @@ export function CategoryManager() {
             setName("");
             setIcon("📦");
             setColor("#7c3aed");
-            setIsDialogOpen(false);
+            setIsAddDialogOpen(false);
+        } catch (error) {
+            toast.error(tCommon("error"));
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleEditClick = (category: Category) => {
+        setEditingCategory(category);
+        setName(category.name);
+        setIcon(category.icon);
+        setColor(category.color);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!editingCategory || !name) {
+            toast.error(tCommon("error"));
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            await updateCategory({
+                id: editingCategory._id,
+                name,
+                icon,
+                color,
+            });
+            toast.success(tCommon("success"));
+            setIsEditDialogOpen(false);
+            setEditingCategory(null);
+            setName("");
+            setIcon("📦");
+            setColor("#7c3aed");
         } catch (error) {
             toast.error(tCommon("error"));
         } finally {
@@ -76,7 +125,7 @@ export function CategoryManager() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">{t("myCategories")}</h3>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                     <DialogTrigger asChild>
                         <Button size="sm" className="shadow-md hover:shadow-primary/20">
                             <Plus className="me-2 h-4 w-4" />
@@ -142,6 +191,79 @@ export function CategoryManager() {
                 </Dialog>
             </div>
 
+            {/* Edit Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl">
+                    <form onSubmit={handleEditSubmit}>
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent w-fit">Modifier la catégorie</DialogTitle>
+                            <DialogDescription>
+                                Modifiez le nom, l'icône ou la couleur de cette catégorie.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-5 py-6">
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit-name" className="text-sm font-medium text-foreground/80">{t("name")}</Label>
+                                <Input
+                                    id="edit-name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Ex: Restaurants"
+                                    className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="edit-icon" className="text-sm font-medium text-foreground/80">{t("icon")}</Label>
+                                    <Input
+                                        id="edit-icon"
+                                        value={icon}
+                                        onChange={(e) => setIcon(e.target.value)}
+                                        placeholder="🍔"
+                                        className="h-10 border-input/50 bg-background/50 focus:bg-background transition-colors text-center text-lg"
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="edit-color" className="text-sm font-medium text-foreground/80">{t("color")}</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            id="edit-color"
+                                            type="color"
+                                            value={color}
+                                            onChange={(e) => setColor(e.target.value)}
+                                            className="h-10 w-12 p-1 border-input/50 bg-background/50 cursor-pointer"
+                                        />
+                                        <Input
+                                            value={color}
+                                            onChange={(e) => setColor(e.target.value)}
+                                            className="h-10 flex-1 border-input/50 bg-background/50 focus:bg-background transition-colors uppercase"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setIsEditDialogOpen(false);
+                                    setEditingCategory(null);
+                                    setName("");
+                                    setIcon("📦");
+                                    setColor("#7c3aed");
+                                }}
+                            >
+                                {tCommon("cancel")}
+                            </Button>
+                            <Button type="submit" disabled={isSubmitting} className="shadow-lg shadow-primary/20">
+                                {tCommon("save")}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {categories?.map((category) => (
                     <div
@@ -157,14 +279,24 @@ export function CategoryManager() {
                             </span>
                             <span className="font-medium">{category.name}</span>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
-                            onClick={() => handleDelete(category._id)}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                onClick={() => handleEditClick(category)}
+                            >
+                                <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                onClick={() => handleDelete(category._id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 ))}
             </div>
