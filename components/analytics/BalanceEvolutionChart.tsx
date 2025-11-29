@@ -26,6 +26,25 @@ export function BalanceEvolutionChart() {
         return <Skeleton className="h-[350px] w-full rounded-xl" />;
     }
 
+    // Handle empty data
+    if (history.length === 0) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t("balanceEvolution")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
+                        <div className="text-center">
+                            <p>Aucune donnée disponible</p>
+                            <p className="text-sm mt-2">Ajoutez des transactions pour voir l'évolution de votre solde</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
     // Calculate linear regression for prediction
     // y = mx + b
     const n = history.length;
@@ -118,7 +137,7 @@ export function BalanceEvolutionChart() {
                             <Line
                                 type="monotone"
                                 dataKey="balance"
-                                stroke="var(--primary)"
+                                stroke="hsl(262.1 83.3% 57.8%)"
                                 strokeWidth={2}
                                 dot={false}
                                 activeDot={{ r: 4 }}
@@ -126,7 +145,7 @@ export function BalanceEvolutionChart() {
                             <Line
                                 type="monotone"
                                 dataKey="predicted"
-                                stroke="var(--muted-foreground)"
+                                stroke="hsl(215.4 16.3% 46.9%)"
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 dot={false}
