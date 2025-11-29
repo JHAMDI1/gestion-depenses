@@ -85,7 +85,7 @@ function StatsContent() {
     const comparisonSeries = useQuery(api.stats.getComparisonMonthlySeries, { months });
 
     // Keep raw transactions only for CSV export convenience
-    const transactions = useQuery(api.transactions.getTransactions, { limit: 1000 });
+    const transactions = useQuery(api.transactions.getTransactions, { limit: 100 });
 
     if (!monthlySeries || !expensesAgg || !incomeSeries || !incomesAgg || !comparisonSeries) {
         return (

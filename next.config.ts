@@ -12,7 +12,23 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     root: __dirname
-  }
+  },
+
+  // Performance Optimizations
+  compress: true, // Enable Gzip compression
+
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Image optimization
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+  },
 };
 
 export default withNextIntl(nextConfig);

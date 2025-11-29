@@ -23,6 +23,11 @@
 # misc
 .DS_Store
 *.pem
+.vscode
+.idea
+*.swp
+*.swo
+*~
 
 # debug
 npm-debug.log*
@@ -40,3 +45,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Lighthouse
+lighthouse-report.json
+lighthouse-report.html
+
+# turbo
+.turbo
+
+# PWA
+**/public/workbox-*.js
+**/public/sw.js
+**/public/worker-*.js
+
+# Sentry
+.sentryclirc

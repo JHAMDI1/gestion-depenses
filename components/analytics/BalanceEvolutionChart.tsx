@@ -5,17 +5,31 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFormatter, useTranslations } from "next-intl";
+import { Line } from "react-chartjs-2";
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
     Tooltip,
-    ResponsiveContainer,
-    ReferenceLine,
-} from "recharts";
+    Legend,
+    Filler,
+} from "chart.js";
 import { TrendingUp } from "lucide-react";
+
+// Register Chart.js components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+);
 
 export function BalanceEvolutionChart() {
     const t = useTranslations("stats");
@@ -72,21 +86,122 @@ export function BalanceEvolutionChart() {
         const predictedBalance = slope * (n - 1 + i) + intercept;
         predictions.push({
             date: nextDate.getTime(),
-            balance: null, // No actual balance
-            predicted: predictedBalance,
+            balance: predictedBalance,
         });
     }
 
-    // Merge data: history has 'balance', predictions has 'predicted'
-    // We need to connect the last history point to the first prediction point
-    const lastHistoryPoint = history[history.length - 1];
-    const chartData = [
-        ...history.map((h: { date: number; balance: number }) => ({ ...h, predicted: null })),
-        { ...lastHistoryPoint, balance: null, predicted: lastHistoryPoint.balance }, // Bridge point
-        ...predictions
+    const isPositiveTrend = slope > 0;
+
+    // Prepare data for Chart.js
+    const labels = [
+        ...history.map((h: { date: number }) => format.dateTime(h.date, { day: "numeric", month: "short" })),
+        ...predictions.map((p) => format.dateTime(p.date, { day: "numeric", month: "short" }))
     ];
 
-    const isPositiveTrend = slope > 0;
+    const balanceData = [
+        ...history.map((h: { balance: number }) => h.balance),
+        ...Array(predictions.length).fill(null) // No actual balance for predictions
+    ];
+
+    const predictionData = [
+        ...Array(history.length - 1).fill(null), // No predictions for history
+        history[history.length - 1].balance, // Bridge point
+        ...predictions.map((p) => p.balance)
+    ];
+
+    const data = {
+        labels,
+        datasets: [
+            {
+                label: t("balance"),
+                data: balanceData,
+                borderColor: "hsl(262.1 83.3% 57.8%)",
+                backgroundColor: "hsla(262.1, 83.3%, 57.8%, 0.1)",
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+            },
+            {
+                label: t("prediction"),
+                data: predictionData,
+                borderColor: "hsl(215.4 16.3% 46.9%)",
+                backgroundColor: "transparent",
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.4,
+                fill: false,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index' as const,
+            intersect: false,
+        },
+        plugins: {
+            legend: {
+                display: false,
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: 'hsl(var(--border))',
+                borderWidth: 1,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                    label: function (context: any) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += format.number(context.parsed.y, { style: "currency", currency: "TND" });
+                        }
+                        return label;
+                    }
+                }
+            },
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false,
+                },
+                ticks: {
+                    maxRotation: 0,
+                    autoSkipPadding: 20,
+                    color: 'hsl(var(--muted-foreground))',
+                    font: {
+                        size: 11,
+                    },
+                },
+            },
+            y: {
+                grid: {
+                    color: 'hsl(var(--border))',
+                    drawBorder: false,
+                },
+                ticks: {
+                    callback: function (value: any) {
+                        return value + ' TND';
+                    },
+                    color: 'hsl(var(--muted-foreground))',
+                    font: {
+                        size: 11,
+                    },
+                },
+            },
+        },
+    };
 
     return (
         <Card>
@@ -103,55 +218,7 @@ export function BalanceEvolutionChart() {
             </CardHeader>
             <CardContent>
                 <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                            <XAxis
-                                dataKey="date"
-                                tickFormatter={(date) => format.dateTime(date, { day: "numeric", month: "short" })}
-                                stroke="var(--muted-foreground)"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                minTickGap={30}
-                            />
-                            <YAxis
-                                stroke="var(--muted-foreground)"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                tickFormatter={(value) => `${value} TND`}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: "var(--popover)",
-                                    border: "1px solid var(--border)",
-                                    borderRadius: "var(--radius)",
-                                }}
-                                labelFormatter={(date) => format.dateTime(date, { day: "numeric", month: "long" })}
-                                formatter={(value: number, name: string) => [
-                                    format.number(value, { style: "currency", currency: "TND" }),
-                                    name === "predicted" ? t("prediction") : t("balance")
-                                ]}
-                            />
-                            <Line
-                                type="monotone"
-                                dataKey="balance"
-                                stroke="hsl(262.1 83.3% 57.8%)"
-                                strokeWidth={2}
-                                dot={false}
-                                activeDot={{ r: 4 }}
-                            />
-                            <Line
-                                type="monotone"
-                                dataKey="predicted"
-                                stroke="hsl(215.4 16.3% 46.9%)"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={false}
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    <Line data={data} options={options} />
                 </div>
             </CardContent>
         </Card>

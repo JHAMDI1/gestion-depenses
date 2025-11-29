@@ -78,18 +78,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="border-t border-border/50 p-4 space-y-4 bg-background/50">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div suppressHydrationWarning>
-                                    <SignedIn>
-                                        <UserButton afterSignOutUrl="/" appearance={{
-                                            elements: {
-                                                avatarBox: "h-9 w-9 ring-2 ring-background shadow-sm"
-                                            }
-                                        }} />
-                                    </SignedIn>
-                                    <SignedOut>
-                                        <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
-                                    </SignedOut>
-                                </div>
+                                <SignedIn>
+                                    <UserButton afterSignOutUrl="/" appearance={{
+                                        elements: {
+                                            avatarBox: "h-9 w-9 ring-2 ring-background shadow-sm"
+                                        }
+                                    }} />
+                                </SignedIn>
+                                <SignedOut>
+                                    <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
+                                </SignedOut>
                                 <div className="flex-1 overflow-hidden">
                                     <p className="text-sm font-medium truncate">{tSettings("profile")}</p>
                                     <p className="text-xs text-muted-foreground truncate">Manage account</p>

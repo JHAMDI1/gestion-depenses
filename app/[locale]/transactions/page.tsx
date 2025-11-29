@@ -22,8 +22,12 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus, Trash2, Edit } from "lucide-react";
-import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
-import { EditTransactionDialog } from "@/components/transactions/EditTransactionDialog";
+import dynamic from "next/dynamic";
+
+const AddTransactionDialog = dynamic(() => import("@/components/transactions/AddTransactionDialog").then(mod => mod.AddTransactionDialog), {
+    loading: () => <div className="h-10 w-32 bg-muted animate-pulse rounded-md" />
+});
+const EditTransactionDialog = dynamic(() => import("@/components/transactions/EditTransactionDialog").then(mod => mod.EditTransactionDialog));
 import { SearchBar } from "@/components/shared/SearchBar";
 import { ExportButton } from "@/components/shared/ExportButton";
 import { FilterPanel, FilterOptions } from "@/components/transactions/FilterPanel";
@@ -61,7 +65,7 @@ function TransactionsContent() {
     const tCommon = useTranslations("common");
     const format = useFormatter();
 
-    const transactions = useQuery(api.transactions.getTransactionsWithDebts, { limit: 1000 });
+    const transactions = useQuery(api.transactions.getTransactionsWithDebts, { limit: 100 });
     const categories = useQuery(api.categories.getCategories);
     const deleteTransaction = useMutation(api.transactions.deleteTransaction);
 
