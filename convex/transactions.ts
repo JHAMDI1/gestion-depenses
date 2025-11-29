@@ -1,5 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { transactionSchema } from "../lib/validation";
+import { validateWithZod, checkRateLimit, logAudit } from "./helpers/security";
 
 // Query: Obtenir toutes les transactions de l'utilisateur
 export const getTransactions = query({
@@ -51,6 +53,110 @@ export const getRecentTransactions = query({
                 };
             })
         );
+    },
+});
+
+// Query: Obtenir les transactions avec les dettes
+export const getTransactionsWithDebts = query({
+    args: {
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Non authentifié");
+
+        // 1. Récupérer les transactions normales
+        const transactions = await ctx.db
+            .query("transactions")
+            .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+            .order("desc")
+            .take(args.limit ?? 100);
+
+        // Enrichir avec les catégories
+        const enrichedTransactions = await Promise.all(
+            transactions.map(async (transaction) => {
+                const category = await ctx.db.get(transaction.categoryId);
+                return {
+                    ...transaction,
+                    category,
+                    isDebt: false,
+                };
+            })
+        );
+
+        // 2. Récupérer toutes les dettes (payées et non payées)
+        const debts = await ctx.db
+            .query("debts")
+            .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+            .collect();
+
+        // 3. Convertir les dettes en format transaction
+        const debtTransactions = debts.flatMap((debt) => {
+            const transactions = [];
+
+            // Créer une "transaction" pour la création de la dette
+            // BORROWED (emprunté) → affiche comme INCOME (vert, +solde)
+            // LENT (prêté) → affiche comme EXPENSE (rouge, -solde)
+            const creationType = debt.type === "BORROWED" ? "INCOME" : "EXPENSE";
+            const creationName = debt.type === "BORROWED"
+                ? `💰 Argent emprunté de ${debt.personName}`
+                : `💸 Argent prêté à ${debt.personName}`;
+
+            transactions.push({
+                _id: `${debt._id}_created` as any,
+                _creationTime: debt.createdAt,
+                userId: debt.userId,
+                name: creationName,
+                amount: debt.amount,
+                type: creationType,
+                date: debt.createdAt,
+                createdAt: debt.createdAt,
+                isDebt: true,
+                debtId: debt._id,
+                debtType: debt.type,
+                debtPerson: debt.personName,
+                isPaid: debt.isPaid,
+                description: debt.description,
+            });
+
+            // Si la dette est payée, créer une "transaction" pour le remboursement
+            // BORROWED payé → EXPENSE (rouge, -solde) car on rembourse
+            // LENT payé → INCOME (vert, +solde) car on reçoit le remboursement
+            if (debt.isPaid) {
+                const paymentType = debt.type === "BORROWED" ? "EXPENSE" : "INCOME";
+                const paymentName = debt.type === "BORROWED"
+                    ? `💳 Remboursement à ${debt.personName}`
+                    : `💵 Remboursement de ${debt.personName}`;
+
+                transactions.push({
+                    _id: `${debt._id}_paid` as any,
+                    _creationTime: debt.createdAt,
+                    userId: debt.userId,
+                    name: paymentName,
+                    amount: debt.amount,
+                    type: paymentType,
+                    // Utilise la date de creation + 1ms pour le tri (simule le paiement après création)
+                    date: debt.createdAt + 1,
+                    createdAt: debt.createdAt,
+                    isDebt: true,
+                    debtId: debt._id,
+                    debtType: debt.type,
+                    debtPerson: debt.personName,
+                    isPaid: debt.isPaid,
+                    description: debt.description,
+                    isPayment: true,
+                });
+            }
+
+            return transactions;
+        });
+
+        // 4. Fusionner et trier par date
+        const combined = [...enrichedTransactions, ...debtTransactions]
+            .sort((a, b) => b.date - a.date)
+            .slice(0, args.limit ?? 100);
+
+        return combined;
     },
 });
 
@@ -132,8 +238,6 @@ export const createTransaction = mutation({
 
         // Validation Zod & Security
         try {
-            const { transactionSchema } = await import("../lib/validation");
-            const { validateWithZod, checkRateLimit, logAudit } = await import("./helpers/security");
 
             // 1. Validation
             validateWithZod(transactionSchema, {
@@ -194,9 +298,6 @@ export const updateTransaction = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Non authentifié");
 
-        const { transactionSchema } = await import("../lib/validation");
-        const { validateWithZod, checkRateLimit, logAudit } = await import("./helpers/security");
-
         // 1. Validation
         validateWithZod(transactionSchema, {
             categoryId: args.categoryId,
@@ -248,8 +349,6 @@ export const deleteTransaction = mutation({
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Non authentifié");
-
-        const { checkRateLimit, logAudit } = await import("./helpers/security");
 
         // Rate Limiting
         await checkRateLimit(ctx, "deleteTransaction", identity.subject);

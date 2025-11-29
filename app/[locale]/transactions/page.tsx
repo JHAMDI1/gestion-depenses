@@ -61,7 +61,7 @@ function TransactionsContent() {
     const tCommon = useTranslations("common");
     const format = useFormatter();
 
-    const transactions = useQuery(api.transactions.getTransactions, { limit: 1000 });
+    const transactions = useQuery(api.transactions.getTransactionsWithDebts, { limit: 1000 });
     const categories = useQuery(api.categories.getCategories);
     const deleteTransaction = useMutation(api.transactions.deleteTransaction);
 
@@ -110,11 +110,12 @@ function TransactionsContent() {
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase());
 
-            // Filter by category
+            // Filter by category (skip for debts)
             const matchesCategory =
+                transaction.isDebt ||
                 !filters.categoryId ||
                 filters.categoryId === "all" ||
-                transaction.categoryId === filters.categoryId;
+                ('categoryId' in transaction && transaction.categoryId === filters.categoryId);
 
             // Filter by type
             const matchesType =
@@ -261,22 +262,37 @@ function TransactionsContent() {
                                                         {format.dateTime(new Date(transaction.date), { dateStyle: 'medium' })}
                                                     </TableCell>
                                                     <TableCell className="font-medium">
-                                                        {transaction.name}
+                                                        <div className="flex items-center gap-2">
+                                                            {transaction.name}
+                                                            {transaction.isDebt && (
+                                                                <span className="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/30 px-2 py-1 text-xs font-medium text-purple-700 dark:text-purple-300">
+                                                                    Dette
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <span
-                                                                className="flex h-7 w-7 items-center justify-center rounded-lg text-sm transition-transform duration-200 group-hover:scale-110"
-                                                                style={{
-                                                                    backgroundColor: transaction.category?.color
-                                                                        ? `${transaction.category.color}15`
-                                                                        : 'var(--color-muted)',
-                                                                }}
-                                                            >
-                                                                {transaction.category?.icon}
-                                                            </span>
-                                                            <span className="text-sm">{transaction.category?.name}</span>
-                                                        </div>
+                                                        {transaction.isDebt ? (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {'debtType' in transaction && transaction.debtType === "BORROWED" ? "Emprunté" : "Prêté"}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2">
+                                                                <span
+                                                                    className="flex h-7 w-7 items-center justify-center rounded-lg text-sm transition-transform duration-200 group-hover:scale-110"
+                                                                    style={{
+                                                                        backgroundColor: 'category' in transaction && transaction.category?.color
+                                                                            ? `${transaction.category.color}15`
+                                                                            : 'var(--color-muted)',
+                                                                    }}
+                                                                >
+                                                                    {'category' in transaction && transaction.category?.icon}
+                                                                </span>
+                                                                <span className="text-sm">{'category' in transaction && transaction.category?.name}</span>
+                                                            </div>
+                                                        )}
                                                     </TableCell>
                                                     <TableCell className="text-end font-bold text-base">
                                                         <span className={transaction.type === "INCOME" ? "text-green-600" : ""}>
@@ -285,32 +301,34 @@ function TransactionsContent() {
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="text-end">
-                                                        <div className="flex justify-end gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-8 w-8 text-muted-foreground hover:text-primary"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleEdit(transaction);
-                                                                }}
-                                                            >
-                                                                <Edit className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleDelete(transaction._id);
-                                                                }}
-                                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
+                                                        {!transaction.isDebt && (
+                                                            <div className="flex justify-end gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleEdit(transaction);
+                                                                    }}
+                                                                >
+                                                                    <Edit className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleDelete(transaction._id);
+                                                                    }}
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        )}
                                                     </TableCell>
                                                 </MotionTableRow>
                                             ))
