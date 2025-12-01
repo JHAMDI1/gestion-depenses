@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -70,12 +71,20 @@ function StatsContent() {
     type MonthlyPoint = { month: string; amount: number };
     type ExpenseAggRow = { name: string; amount: number; color?: string };
 
-    const [timeRange, setTimeRange] = useState("6");
     const [filter, setFilter] = useState<"EXPENSE" | "INCOME" | "ALL">("EXPENSE");
-    const months = parseInt(timeRange);
+
+    // Custom date range instead of preset months
     const now = new Date();
-    const rangeStart = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1).getTime();
-    const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime();
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    const [startDate, setStartDate] = useState<string>(sixMonthsAgo.toISOString().split('T')[0]);
+    const [endDate, setEndDate] = useState<string>(now.toISOString().split('T')[0]);
+
+    const rangeStart = new Date(startDate).getTime();
+    const rangeEnd = new Date(endDate + "T23:59:59").getTime();
+
+    // Calculate months for components that need it
+    const daysDiff = Math.ceil((rangeEnd - rangeStart) / (1000 * 60 * 60 * 24));
+    const months = Math.max(1, Math.ceil(daysDiff / 30));
 
     // Server-side aggregations via Convex
     const monthlySeries = useQuery(api.stats.getMonthlySeries, { months });
@@ -164,18 +173,21 @@ function StatsContent() {
                     {transactions && (
                         <ExportCSV data={transactions || []} filename={`masrouf_export_${new Date().toISOString().split('T')[0]}.csv`} />
                     )}
-                    <Select value={timeRange} onValueChange={setTimeRange}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder={t("period")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="1">{t("last1Month")}</SelectItem>
-                            <SelectItem value="3">{t("last3Months")}</SelectItem>
-                            <SelectItem value="6">{t("last6Months")}</SelectItem>
-                            <SelectItem value="9">{t("last9Months")}</SelectItem>
-                            <SelectItem value="12">{t("last12Months")}</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                        <Input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-auto"
+                        />
+                        <span className="text-muted-foreground">-</span>
+                        <Input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-auto"
+                        />
+                    </div>
                 </div>
             </div>
 
