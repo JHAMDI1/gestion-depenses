@@ -9,7 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useFormatter, useTranslations } from "next-intl";
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
-export function ComparisonCards() {
+interface ComparisonCardsProps {
+    months?: number;
+}
+
+export function ComparisonCards({ months = 6 }: ComparisonCardsProps) {
     const t = useTranslations("stats");
     const format = useFormatter();
     const stats = useQuery(api.analytics.getMonthlyStats);

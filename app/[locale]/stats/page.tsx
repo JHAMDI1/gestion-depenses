@@ -169,8 +169,10 @@ function StatsContent() {
                             <SelectValue placeholder={t("period")} />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem value="1">{t("last1Month")}</SelectItem>
                             <SelectItem value="3">{t("last3Months")}</SelectItem>
                             <SelectItem value="6">{t("last6Months")}</SelectItem>
+                            <SelectItem value="9">{t("last9Months")}</SelectItem>
                             <SelectItem value="12">{t("last12Months")}</SelectItem>
                         </SelectContent>
                     </Select>
@@ -206,7 +208,7 @@ function StatsContent() {
                 </Card>
             </div>
 
-            <ComparisonCards />
+            <ComparisonCards months={months} />
 
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="col-span-2 lg:col-span-1">
@@ -230,11 +232,11 @@ function StatsContent() {
                 </Card>
             </div>
 
-            <BalanceEvolutionChart />
+            <BalanceEvolutionChart days={months * 30} />
 
             <div className="grid gap-4 md:grid-cols-2">
                 {filter !== "ALL" && <TopCategoriesTable data={displayData} totalExpenses={displayTotal} />}
-                <TopExpensesList />
+                <TopExpensesList start={rangeStart} end={rangeEnd} />
             </div>
         </PageTransition>
     );

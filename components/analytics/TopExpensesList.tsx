@@ -7,10 +7,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useFormatter, useTranslations } from "next-intl";
 import { Progress } from "@/components/ui/progress";
 
-export function TopExpensesList() {
+interface TopExpensesListProps {
+    start?: number;
+    end?: number;
+}
+
+export function TopExpensesList({ start, end }: TopExpensesListProps) {
     const t = useTranslations("stats");
     const format = useFormatter();
-    const topExpenses = useQuery(api.analytics.getTopExpenses, { limit: 5 });
+    const topExpenses = useQuery(api.analytics.getTopExpenses, { limit: 5, start, end });
 
     if (!topExpenses) {
         return <Skeleton className="h-[350px] w-full rounded-xl" />;

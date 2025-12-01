@@ -84,7 +84,9 @@
         "monthlyExpenses": "Dépenses du mois",
         "yearlyExpenses": "Dépenses de l'année",
         "lastMonth": "Mois dernier",
-        "lastYear": "Année dernière"
+        "lastYear": "Année dernière",
+        "last1Month": "1 mois",
+        "last9Months": "9 derniers mois"
     },
     "budgets": {
         "title": "Budgets",

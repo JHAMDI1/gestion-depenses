@@ -81,19 +81,31 @@ export const getBalanceHistory = query({
 // 2. Top Dépenses du mois
 export const getTopExpenses = query({
     args: {
-        month: v.optional(v.string()), // Format "YYYY-MM"
+        month: v.optional(v.string()), // Format "YYYY-MM" (deprecated, use start/end instead)
         limit: v.optional(v.number()),
+        start: v.optional(v.number()), // Start timestamp
+        end: v.optional(v.number()),   // End timestamp
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return [];
 
         const limit = args.limit || 5;
-        const now = new Date();
-        const monthStr = args.month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        const [year, month] = monthStr.split('-').map(Number);
 
-        const { start, end } = getMonthRange(year, month - 1);
+        let start: number, end: number;
+
+        // Use start/end if provided, otherwise use month parameter or current month
+        if (args.start !== undefined && args.end !== undefined) {
+            start = args.start;
+            end = args.end;
+        } else {
+            const now = new Date();
+            const monthStr = args.month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const [year, month] = monthStr.split('-').map(Number);
+            const range = getMonthRange(year, month - 1);
+            start = range.start;
+            end = range.end;
+        }
 
         const transactions = await ctx.db
             .query("transactions")

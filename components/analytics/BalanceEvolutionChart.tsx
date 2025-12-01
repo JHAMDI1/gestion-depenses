@@ -31,10 +31,14 @@ ChartJS.register(
     Filler
 );
 
-export function BalanceEvolutionChart() {
+interface BalanceEvolutionChartProps {
+    days?: number;
+}
+
+export function BalanceEvolutionChart({ days = 30 }: BalanceEvolutionChartProps) {
     const t = useTranslations("stats");
     const format = useFormatter();
-    const history = useQuery(api.analytics.getBalanceHistory, { days: 30 });
+    const history = useQuery(api.analytics.getBalanceHistory, { days });
 
     if (!history) {
         return <Skeleton className="h-[350px] w-full rounded-xl" />;

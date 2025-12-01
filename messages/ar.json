@@ -84,7 +84,9 @@
         "monthlyExpenses": "نفقات الشهر",
         "yearlyExpenses": "نفقات السنة",
         "lastMonth": "الشهر الماضي",
-        "lastYear": "السنة الماضية"
+        "lastYear": "السنة الماضية",
+        "last1Month": "شهر واحد",
+        "last9Months": "آخر 9 أشهر"
     },
     "budgets": {
         "title": "الميزانيات",
