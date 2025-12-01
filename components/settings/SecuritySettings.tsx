@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { startRegistration } from "@simplewebauthn/browser";
 import { PinInput } from "@/components/security/PinInput";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -49,12 +50,44 @@ export function SecuritySettings() {
         }
     };
 
+    const generateRegistrationOpts = useAction(api.webauthn.generateRegistrationOpts);
+    const verifyRegistration = useAction(api.webauthn.verifyRegistration);
+
     const handleBiometricToggle = async (checked: boolean) => {
+        if (!checked) {
+            // Disable biometric
+            try {
+                await toggleBiometric({ enabled: false });
+                toast.success("Biométrie désactivée");
+            } catch (err) {
+                toast.error("Erreur lors de la désactivation");
+            }
+            return;
+        }
+
+        // Enable biometric -> Start WebAuthn Registration
         try {
-            await toggleBiometric({ enabled: checked });
-            toast.success(checked ? "Biométrie activée" : "Biométrie désactivée");
+            const options = await generateRegistrationOpts();
+
+            // Start registration on device
+            const attResp = await startRegistration(options);
+
+            // Verify on server
+            const verified = await verifyRegistration({ response: attResp });
+
+            if (verified) {
+                toast.success("Biométrie configurée avec succès");
+            } else {
+                toast.error("Échec de la vérification biométrique");
+                // Revert switch visually if needed, but state updates on re-render
+            }
         } catch (err) {
-            toast.error("Erreur lors de la modification");
+            console.error(err);
+            if ((err as Error).name === 'InvalidStateError') {
+                toast.error("Cet appareil est déjà enregistré ou non compatible.");
+            } else {
+                toast.error("Erreur lors de l'enregistrement biométrique");
+            }
         }
     };
 

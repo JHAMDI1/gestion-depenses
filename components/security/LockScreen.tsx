@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { PinInput } from "./PinInput";
 import { Lock, Fingerprint, ScanFace } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
+import { startAuthentication } from "@simplewebauthn/browser";
 
 interface LockScreenProps {
     isLocked: boolean;
@@ -40,9 +41,32 @@ export function LockScreen({ isLocked, onUnlock, biometricEnabled }: LockScreenP
         }
     };
 
+    const generateAuthOpts = useAction(api.webauthn.generateAuthOpts);
+    const verifyAuth = useAction(api.webauthn.verifyAuth);
+
     const handleBiometric = async () => {
-        // Placeholder pour WebAuthn
-        toast.info("Authentification biométrique non implémentée (WebAuthn requis)");
+        try {
+            setIsLoading(true);
+            const options = await generateAuthOpts();
+
+            // Start authentication on device
+            const authResp = await startAuthentication(options);
+
+            // Verify on server
+            const verified = await verifyAuth({ response: authResp });
+
+            if (verified) {
+                onUnlock();
+                toast.success("Authentification réussie");
+            } else {
+                toast.error("Échec de l'authentification");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Erreur d'authentification biométrique");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     if (!isLocked) return null;

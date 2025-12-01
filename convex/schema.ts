@@ -113,6 +113,20 @@ export default defineSchema({
         userId: v.string(),
         pin: v.optional(v.string()),           // Code PIN haché
         biometricEnabled: v.boolean(),         // Si la biométrie est activée
+        currentChallenge: v.optional(v.string()), // Challenge WebAuthn temporaire
         updatedAt: v.number(),
     }).index("by_user", ["userId"]),
+
+    // Identifiants WebAuthn (Biométrie)
+    biometric_credentials: defineTable({
+        userId: v.string(),
+        credentialId: v.string(),
+        publicKey: v.string(), // Base64 encoded
+        counter: v.number(),
+        transports: v.optional(v.any()), // JSON array
+        createdAt: v.number(),
+        lastUsedAt: v.number(),
+    })
+        .index("by_user", ["userId"])
+        .index("by_credential_id", ["credentialId"]),
 });
