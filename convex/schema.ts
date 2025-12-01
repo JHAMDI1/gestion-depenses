@@ -107,4 +107,12 @@ export default defineSchema({
         windowStart: v.number(),   // Début de la fenêtre de temps
     })
         .index("by_identifier_action", ["identifier", "action"]),
+
+    // Paramètres utilisateur (Sécurité, Préférences)
+    user_settings: defineTable({
+        userId: v.string(),
+        pin: v.optional(v.string()),           // Code PIN haché
+        biometricEnabled: v.boolean(),         // Si la biométrie est activée
+        updatedAt: v.number(),
+    }).index("by_user", ["userId"]),
 });

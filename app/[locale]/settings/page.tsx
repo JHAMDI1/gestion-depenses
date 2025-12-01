@@ -9,6 +9,7 @@ import { CategoryManager } from "@/components/settings/CategoryManager";
 import { ThemeToggle } from "@/components/settings/ThemeToggle";
 import { DataSeeder } from "@/components/settings/DataSeeder";
 import { DataExportButton } from "@/components/settings/DataExportButton";
+import { SecuritySettings } from "@/components/settings/SecuritySettings";
 import { Moon, Sun, LogOut, User, Target, Wallet, Database } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -95,6 +96,13 @@ function SettingsContent() {
                                 {t("logout")}
                             </Button>
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* Security Section */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm md:col-span-2">
+                    <CardContent className="pt-6">
+                        <SecuritySettings />
                     </CardContent>
                 </Card>
 

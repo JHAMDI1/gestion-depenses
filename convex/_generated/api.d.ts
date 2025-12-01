@@ -21,6 +21,7 @@ import type * as recurring_generator from "../recurring_generator.js";
 import type * as recurrings from "../recurrings.js";
 import type * as stats from "../stats.js";
 import type * as transactions from "../transactions.js";
+import type * as user_settings from "../user_settings.js";
 
 import type {
   ApiFromModules,
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   recurrings: typeof recurrings;
   stats: typeof stats;
   transactions: typeof transactions;
+  user_settings: typeof user_settings;
 }>;
 
 /**

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/settings/LanguageSwitcher";
+import { SecurityProvider } from "@/components/providers/SecurityProvider";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -101,9 +102,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto bg-background/50">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8 max-w-7xl">
-                    {children}
-                </div>
+                <SecurityProvider>
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8 max-w-7xl">
+                        {children}
+                    </div>
+                </SecurityProvider>
             </main>
 
             {/* Mobile Bottom Navigation - Carousel Style */}
