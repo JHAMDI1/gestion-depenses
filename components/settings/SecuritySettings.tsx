@@ -67,19 +67,21 @@ export function SecuritySettings() {
 
         // Enable biometric -> Start WebAuthn Registration
         try {
-            const options = await generateRegistrationOpts();
+            const rpId = window.location.hostname;
+            const origin = window.location.origin;
+
+            const options = await generateRegistrationOpts({ rpId, origin });
 
             // Start registration on device
             const attResp = await startRegistration(options);
 
             // Verify on server
-            const verified = await verifyRegistration({ response: attResp });
+            const verified = await verifyRegistration({ response: attResp, rpId, origin });
 
             if (verified) {
                 toast.success("Biométrie configurée avec succès");
             } else {
                 toast.error("Échec de la vérification biométrique");
-                // Revert switch visually if needed, but state updates on re-render
             }
         } catch (err) {
             console.error(err);

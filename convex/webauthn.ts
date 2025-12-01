@@ -10,13 +10,14 @@ import {
 import { internal } from "./_generated/api";
 
 const RP_NAME = "Masrouf";
-const RP_ID = "localhost"; // TODO: Change for production (e.g., your-domain.com)
-const ORIGIN = "http://localhost:3000"; // TODO: Change for production
 
 // 1. Generate Registration Options
 export const generateRegistrationOpts = action({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        rpId: v.string(),
+        origin: v.string(),
+    },
+    handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) throw new Error("Unauthorized");
 
@@ -25,7 +26,7 @@ export const generateRegistrationOpts = action({
 
         const options = await generateRegistrationOptions({
             rpName: RP_NAME,
-            rpID: RP_ID,
+            rpID: args.rpId,
             userID: userId,
             userName: "User", // Could fetch email/name
             attestationType: "none",
@@ -41,18 +42,11 @@ export const generateRegistrationOpts = action({
             },
         });
 
-        // Store challenge temporarily? 
-        // SimpleWebAuthn is stateless regarding challenge if we verify it correctly.
-        // But we need to pass the expected challenge to verify function.
-        // Usually we store it in DB or session.
-        // For simplicity here, we will return it and trust the client to send it back signed? 
-        // NO, that's insecure. We MUST store the challenge.
-        // Let's store it in a temporary table or just use a signed JWT/cookie?
-        // Convex doesn't have sessions easily.
-        // We will store it in `user_settings` or a new `challenges` table.
-        // Actually, let's just add a `currentChallenge` field to `user_settings` for simplicity.
-
-        await ctx.runMutation(internal.webauthn.saveChallenge, { userId, challenge: options.challenge });
+        // Store challenge and rpId for verification
+        await ctx.runMutation(internal.webauthn.saveChallenge, {
+            userId,
+            challenge: options.challenge,
+        });
 
         return options;
     },
@@ -62,6 +56,8 @@ export const generateRegistrationOpts = action({
 export const verifyRegistration = action({
     args: {
         response: v.any(),
+        rpId: v.string(),
+        origin: v.string(),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
@@ -73,8 +69,8 @@ export const verifyRegistration = action({
         const verification = await verifyRegistrationResponse({
             response: args.response,
             expectedChallenge: challenge,
-            expectedOrigin: ORIGIN,
-            expectedRPID: RP_ID,
+            expectedOrigin: args.origin,
+            expectedRPID: args.rpId,
         });
 
         if (verification.verified && verification.registrationInfo) {
@@ -97,15 +93,17 @@ export const verifyRegistration = action({
 
 // 3. Generate Authentication Options
 export const generateAuthOpts = action({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        rpId: v.string(),
+    },
+    handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) throw new Error("Unauthorized");
 
         const userCredentials = await ctx.runQuery(internal.webauthn.getUserCredentials, { userId });
 
         const options = await generateAuthenticationOptions({
-            rpID: RP_ID,
+            rpID: args.rpId,
             allowCredentials: userCredentials.map((cred) => ({
                 id: new Uint8Array(Buffer.from(cred.credentialId, "base64")),
                 type: "public-key",
@@ -124,6 +122,8 @@ export const generateAuthOpts = action({
 export const verifyAuth = action({
     args: {
         response: v.any(),
+        rpId: v.string(),
+        origin: v.string(),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
@@ -138,8 +138,8 @@ export const verifyAuth = action({
         const verification = await verifyAuthenticationResponse({
             response: args.response,
             expectedChallenge: challenge,
-            expectedOrigin: ORIGIN,
-            expectedRPID: RP_ID,
+            expectedOrigin: args.origin,
+            expectedRPID: args.rpId,
             authenticator: {
                 credentialID: new Uint8Array(Buffer.from(credential.credentialId, "base64")),
                 credentialPublicKey: new Uint8Array(Buffer.from(credential.publicKey, "base64")),

@@ -47,13 +47,16 @@ export function LockScreen({ isLocked, onUnlock, biometricEnabled }: LockScreenP
     const handleBiometric = async () => {
         try {
             setIsLoading(true);
-            const options = await generateAuthOpts();
+            const rpId = window.location.hostname;
+            const origin = window.location.origin;
+
+            const options = await generateAuthOpts({ rpId });
 
             // Start authentication on device
             const authResp = await startAuthentication(options);
 
             // Verify on server
-            const verified = await verifyAuth({ response: authResp });
+            const verified = await verifyAuth({ response: authResp, rpId, origin });
 
             if (verified) {
                 onUnlock();
