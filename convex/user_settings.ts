@@ -44,37 +44,6 @@ export const setPin = mutation({
             await ctx.db.insert("user_settings", {
                 userId,
                 pin: args.pin,
-                biometricEnabled: false,
-                updatedAt: Date.now(),
-            });
-        }
-    },
-});
-
-// Activer/Désactiver la biométrie
-export const toggleBiometric = mutation({
-    args: {
-        enabled: v.boolean(),
-    },
-    handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) throw new Error("Non authentifié");
-
-        const existing = await ctx.db
-            .query("user_settings")
-            .withIndex("by_user", (q) => q.eq("userId", userId))
-            .unique();
-
-        if (existing) {
-            await ctx.db.patch(existing._id, {
-                biometricEnabled: args.enabled,
-                updatedAt: Date.now(),
-            });
-        } else {
-            await ctx.db.insert("user_settings", {
-                userId,
-                pin: undefined, // Pas de PIN défini encore
-                biometricEnabled: args.enabled,
                 updatedAt: Date.now(),
             });
         }
@@ -99,5 +68,29 @@ export const verifyPin = mutation({
 
         // Comparaison simple (si hashé, comparer les hashs)
         return settings.pin === args.pin;
+    },
+});
+
+// Mutation pour nettoyer les anciens champs (à exécuter une seule fois)
+export const cleanupDeprecatedFields = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const userId = await getAuthUserId(ctx);
+        if (!userId) throw new Error("Non authentifié");
+
+        const settings = await ctx.db
+            .query("user_settings")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .unique();
+
+        if (settings) {
+            // Patch pour supprimer les anciens champs
+            await ctx.db.patch(settings._id, {
+                pin: settings.pin,
+                updatedAt: Date.now(),
+            } as any);
+        }
+
+        return true;
     },
 });

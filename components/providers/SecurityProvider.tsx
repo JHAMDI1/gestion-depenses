@@ -17,7 +17,7 @@ const SecurityContext = createContext<SecurityContextType | undefined>(undefined
 
 export function SecurityProvider({ children }: { children: React.ReactNode }) {
     const settings = useQuery(api.user_settings.getSettings);
-    const [isLocked, setIsLocked] = useState(false); // Default false, wait for settings
+    const [isLocked, setIsLocked] = useState(true); // Start locked by default
     const [isInitialized, setIsInitialized] = useState(false);
     const pathname = usePathname();
 
@@ -27,7 +27,16 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (settings !== undefined && !isInitialized) {
             if (settings?.pin) {
-                setIsLocked(true); // Lock immediately if PIN exists
+                // Check if already unlocked in this session
+                const sessionUnlocked = sessionStorage.getItem('app_unlocked');
+                if (sessionUnlocked === 'true') {
+                    setIsLocked(false);
+                } else {
+                    setIsLocked(true);
+                }
+            } else {
+                // No PIN set, don't lock
+                setIsLocked(false);
             }
             setIsInitialized(true);
         }
@@ -46,13 +55,18 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [hasPin]);
 
-    const lock = () => setIsLocked(true);
-    const unlock = () => setIsLocked(false);
+    const lock = () => {
+        sessionStorage.removeItem('app_unlocked');
+        setIsLocked(true);
+    };
 
-    // Don't block public pages if any (but here we assume mostly protected)
-    // If settings are loading, we might want to show a loader or just render children (risk of flash)
-    // Better to show nothing or loader until we know if we need to lock.
-    if (settings === undefined) return null; // Or a loading spinner
+    const unlock = () => {
+        sessionStorage.setItem('app_unlocked', 'true');
+        setIsLocked(false);
+    };
+
+    // If settings are loading, show nothing until we know if we need to lock
+    if (settings === undefined) return null;
 
     return (
         <SecurityContext.Provider value={{ isLocked, lock, unlock, hasPin }}>
@@ -61,7 +75,6 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
                 <LockScreen
                     isLocked={isLocked}
                     onUnlock={unlock}
-                    biometricEnabled={settings.biometricEnabled}
                 />
             )}
         </SecurityContext.Provider>

@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { startRegistration } from "@simplewebauthn/browser";
 import { PinInput } from "@/components/security/PinInput";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Shield, Fingerprint, KeyRound } from "lucide-react";
+import { Shield, KeyRound } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -22,7 +20,6 @@ import {
 export function SecuritySettings() {
     const settings = useQuery(api.user_settings.getSettings);
     const setPin = useMutation(api.user_settings.setPin);
-    const toggleBiometric = useMutation(api.user_settings.toggleBiometric);
 
     const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
     const [newPin, setNewPin] = useState("");
@@ -47,49 +44,6 @@ export function SecuritySettings() {
             setStep("enter");
         } catch (err) {
             toast.error("Erreur lors de la définition du PIN");
-        }
-    };
-
-    const generateRegistrationOpts = useAction(api.webauthn.generateRegistrationOpts);
-    const verifyRegistration = useAction(api.webauthn.verifyRegistration);
-
-    const handleBiometricToggle = async (checked: boolean) => {
-        if (!checked) {
-            // Disable biometric
-            try {
-                await toggleBiometric({ enabled: false });
-                toast.success("Biométrie désactivée");
-            } catch (err) {
-                toast.error("Erreur lors de la désactivation");
-            }
-            return;
-        }
-
-        // Enable biometric -> Start WebAuthn Registration
-        try {
-            const rpId = window.location.hostname;
-            const origin = window.location.origin;
-
-            const options = await generateRegistrationOpts({ rpId, origin });
-
-            // Start registration on device
-            const attResp = await startRegistration(options);
-
-            // Verify on server
-            const verified = await verifyRegistration({ response: attResp, rpId, origin });
-
-            if (verified) {
-                toast.success("Biométrie configurée avec succès");
-            } else {
-                toast.error("Échec de la vérification biométrique");
-            }
-        } catch (err) {
-            console.error(err);
-            if ((err as Error).name === 'InvalidStateError') {
-                toast.error("Cet appareil est déjà enregistré ou non compatible.");
-            } else {
-                toast.error("Erreur lors de l'enregistrement biométrique");
-            }
         }
     };
 
@@ -159,26 +113,6 @@ export function SecuritySettings() {
                             )}
                         </DialogContent>
                     </Dialog>
-                </div>
-
-                <div className="h-px bg-border" />
-
-                {/* Biometric Configuration */}
-                <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                            <Fingerprint className="h-4 w-4 text-muted-foreground" />
-                            <Label className="text-base">Authentification Biométrique</Label>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                            Utiliser l'empreinte digitale ou FaceID pour déverrouiller.
-                        </p>
-                    </div>
-                    <Switch
-                        checked={settings?.biometricEnabled ?? false}
-                        onCheckedChange={handleBiometricToggle}
-                        disabled={!settings?.pin} // Need PIN first as backup
-                    />
                 </div>
             </div>
         </div>

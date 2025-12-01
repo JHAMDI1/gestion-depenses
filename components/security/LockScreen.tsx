@@ -1,21 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PinInput } from "./PinInput";
-import { Lock, Fingerprint, ScanFace } from "lucide-react";
+import { Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMutation, useAction } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
-import { startAuthentication } from "@simplewebauthn/browser";
 
 interface LockScreenProps {
     isLocked: boolean;
     onUnlock: () => void;
-    biometricEnabled?: boolean;
 }
 
-export function LockScreen({ isLocked, onUnlock, biometricEnabled }: LockScreenProps) {
+export function LockScreen({ isLocked, onUnlock }: LockScreenProps) {
     const [error, setError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const verifyPin = useMutation(api.user_settings.verifyPin);
@@ -36,37 +34,6 @@ export function LockScreen({ isLocked, onUnlock, biometricEnabled }: LockScreenP
             }
         } catch (err) {
             toast.error("Erreur de vérification");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const generateAuthOpts = useAction(api.webauthn.generateAuthOpts);
-    const verifyAuth = useAction(api.webauthn.verifyAuth);
-
-    const handleBiometric = async () => {
-        try {
-            setIsLoading(true);
-            const rpId = window.location.hostname;
-            const origin = window.location.origin;
-
-            const options = await generateAuthOpts({ rpId });
-
-            // Start authentication on device
-            const authResp = await startAuthentication(options);
-
-            // Verify on server
-            const verified = await verifyAuth({ response: authResp, rpId, origin });
-
-            if (verified) {
-                onUnlock();
-                toast.success("Authentification réussie");
-            } else {
-                toast.error("Échec de l'authentification");
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error("Erreur d'authentification biométrique");
         } finally {
             setIsLoading(false);
         }
@@ -98,16 +65,6 @@ export function LockScreen({ isLocked, onUnlock, biometricEnabled }: LockScreenP
                             disabled={isLoading}
                         />
                     </div>
-
-                    {biometricEnabled && (
-                        <button
-                            onClick={handleBiometric}
-                            className="flex items-center gap-2 mx-auto text-primary hover:text-primary/80 transition-colors"
-                        >
-                            <Fingerprint className="h-6 w-6" />
-                            <span className="font-medium">Utiliser l'empreinte</span>
-                        </button>
-                    )}
                 </div>
             </motion.div>
         </AnimatePresence>
